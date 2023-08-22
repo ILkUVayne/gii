@@ -34,7 +34,8 @@ func (c *Context) SetHeader(key, value string) {
 }
 
 func (c *Context) render(code int, r render.Render) {
-	// todo 重复调用问题
+	// 设置httpCode,暂时这么处理
+	r.WriteContentType(c.Rw)
 	c.Status(code)
 	err := r.Render(c.Rw)
 	if err != nil {

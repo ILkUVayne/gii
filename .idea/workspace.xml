@@ -4,7 +4,11 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8d306a83-c1ec-4be4-bd08-c670f73c7faf" name="Changes" comment="update 封装上下文demo,抽离router逻辑" />
+    <list default="true" id="8d306a83-c1ec-4be4-bd08-c670f73c7faf" name="Changes" comment="fix 修改http: superfluous response.WriteHeader call">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gii/context.go" beforeDir="false" afterPath="$PROJECT_DIR$/gii/context.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -45,10 +49,11 @@
     "RunOnceActivity.go.formatter.settings.were.checked": "true",
     "RunOnceActivity.go.migrated.go.modules.settings": "true",
     "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
+    "TODO_SCOPE": "All Places",
     "WebServerToolWindowFactoryState": "false",
     "go.import.settings.migrated": "true",
     "go.sdk.automatically.set": "true",
-    "last_opened_file_path": "//wsl$/Ubuntu/home/luoyang/code/go_demo/gii",
+    "last_opened_file_path": "//wsl$/Ubuntu/home/luoyang/code/go_demo/base_go",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)"
   }
@@ -129,7 +134,9 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="gii init" />
     <MESSAGE value="update 封装上下文demo,抽离router逻辑" />
-    <option name="LAST_COMMIT_MESSAGE" value="update 封装上下文demo,抽离router逻辑" />
+    <MESSAGE value="update xml" />
+    <MESSAGE value="fix 修改http: superfluous response.WriteHeader call" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix 修改http: superfluous response.WriteHeader call" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

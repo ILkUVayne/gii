@@ -29,7 +29,7 @@ func reJson(c *gii.Context) {
 		Name: "sdja",
 		Age:  1,
 	}
-	c.JSON(http.StatusOK, gii.H{
+	c.JSON(http.StatusMultipleChoices, gii.H{
 		"code":    200,
 		"message": "操作成功",
 		"data":    user,
