@@ -4,7 +4,11 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8d306a83-c1ec-4be4-bd08-c670f73c7faf" name="Changes" comment="gii init" />
+    <list default="true" id="8d306a83-c1ec-4be4-bd08-c670f73c7faf" name="Changes" comment="gii init">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gii/gii.go" beforeDir="false" afterPath="$PROJECT_DIR$/gii/gii.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -19,7 +23,7 @@
   </component>
   <component name="GOROOT" url="file://$PROJECT_DIR$/../../../../../usr/local/go_src/21/go" />
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GoLibraries">
     <option name="urls">
@@ -48,7 +52,7 @@
     "WebServerToolWindowFactoryState": "false",
     "go.import.settings.migrated": "true",
     "go.sdk.automatically.set": "true",
-    "last_opened_file_path": "//wsl$/Ubuntu/home/luoyang/code/go_demo/gii/gii",
+    "last_opened_file_path": "//wsl$/Ubuntu/home/luoyang/code/go_demo/gii",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)"
   }
@@ -58,6 +62,22 @@
       <recent name="\\wsl$\Ubuntu\home\luoyang\code\go_demo\gii\gii" />
     </key>
   </component>
+  <component name="RunManager">
+    <configuration name="go build gii" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="gii" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="gii" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/main.go" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Go Build.go build gii" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
@@ -65,6 +85,11 @@
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
       <map>
+        <entry key="22dc9b17-4d2e-4f28-b92e-b2da4b786c58">
+          <value>
+            <State />
+          </value>
+        </entry>
         <entry key="MAIN">
           <value>
             <State>
@@ -82,6 +107,11 @@
             </State>
           </value>
         </entry>
+      </map>
+    </option>
+    <option name="OPEN_GENERIC_TABS">
+      <map>
+        <entry key="22dc9b17-4d2e-4f28-b92e-b2da4b786c58" value="TOOL_WINDOW" />
       </map>
     </option>
     <option name="RECENT_FILTERS">
