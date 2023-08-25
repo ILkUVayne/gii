@@ -1,8 +1,8 @@
 package gii
 
 import (
-	"fmt"
 	"log"
+	"net/http"
 	"strings"
 )
 
@@ -28,11 +28,8 @@ func (r *Router) handle(c *Context) {
 	key := strings.ToUpper(c.Method) + "-" + c.Path
 	handler, ok := r.Handles[key]
 	if !ok {
-		_, err := fmt.Fprintf(c.Rw, "method not found path: %s\n", key)
-		if err != nil {
-			return
-		}
-	} else {
-		handler(c)
+		c.String(http.StatusNotFound, "method not found path: %s\n", key)
+		return
 	}
+	handler(c)
 }
