@@ -51,7 +51,7 @@
     "WebServerToolWindowFactoryState": "false",
     "go.import.settings.migrated": "true",
     "go.sdk.automatically.set": "true",
-    "last_opened_file_path": "//wsl$/Ubuntu/home/luoyang/code/go_demo/gii",
+    "last_opened_file_path": "//wsl$/Ubuntu/home/luoyang/code/go_demo/gin",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)"
   }
@@ -61,7 +61,7 @@
       <recent name="\\wsl$\Ubuntu\home\luoyang\code\go_demo\gii\gii" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Go Test.TestTrie_PassCnt in gii/tree">
     <configuration name="go build gii" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="gii" />
       <working_directory value="$PROJECT_DIR$" />
@@ -71,8 +71,34 @@
       <filePath value="$PROJECT_DIR$/main.go" />
       <method v="2" />
     </configuration>
+    <configuration name="TestTrie_Del in gii/tree" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="gii" />
+      <working_directory value="$PROJECT_DIR$/tree" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="gii/tree" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTestTrie_Del\E$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestTrie_PassCnt in gii/tree" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="gii" />
+      <working_directory value="$PROJECT_DIR$/tree" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="gii/tree" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTestTrie_PassCnt\E$" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Go Test.TestTrie_PassCnt in gii/tree" />
+        <item itemvalue="Go Test.TestTrie_Del in gii/tree" />
         <item itemvalue="Go Build.go build gii" />
       </list>
     </recent_temporary>
@@ -97,7 +123,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="master" />
+                        <option value="origin/main" />
                       </list>
                     </value>
                   </entry>
@@ -120,6 +146,11 @@
             <list>
               <RecentGroup>
                 <option name="FILTER_VALUES">
+                  <option value="origin/main" />
+                </option>
+              </RecentGroup>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
                   <option value="master" />
                 </option>
               </RecentGroup>
@@ -139,5 +170,12 @@
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
+  </component>
+  <component name="XDebuggerManager">
+    <watches-manager>
+      <configuration name="GoTestRunConfiguration">
+        <watch expression="*(*&quot;gii/tree.trieNode&quot;)(824634934368)" />
+      </configuration>
+    </watches-manager>
   </component>
 </project>
