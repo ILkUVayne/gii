@@ -4,8 +4,8 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8d306a83-c1ec-4be4-bd08-c670f73c7faf" name="Changes" comment="add: implement trie">
-      <change beforePath="$PROJECT_DIR$/gii/Router.go" beforeDir="false" afterPath="$PROJECT_DIR$/gii/Router.go" afterDir="false" />
+    <list default="true" id="8d306a83-c1ec-4be4-bd08-c670f73c7faf" name="Changes" comment="update: change router.handle(), when method not found,use c.String() response">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,7 +61,7 @@
       <recent name="\\wsl$\Ubuntu\home\luoyang\code\go_demo\gii\gii" />
     </key>
   </component>
-  <component name="RunManager" selected="Go Test.TestTrie_PassCnt in gii/tree">
+  <component name="RunManager" selected="Go Test.TestRadix_Del in gii/tree">
     <configuration name="go build gii" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="gii" />
       <working_directory value="$PROJECT_DIR$" />
@@ -69,6 +69,30 @@
       <package value="gii" />
       <directory value="$PROJECT_DIR$" />
       <filePath value="$PROJECT_DIR$/main.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestRadix_Del in gii/tree" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="gii" />
+      <working_directory value="$PROJECT_DIR$/tree" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="gii/tree" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTestRadix_Del\E$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestRadix_Insert in gii/tree" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="gii" />
+      <working_directory value="$PROJECT_DIR$/tree" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="gii/tree" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTestRadix_Insert\E$" />
       <method v="2" />
     </configuration>
     <configuration name="TestTrie_Del in gii/tree" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
@@ -97,6 +121,8 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Go Test.TestRadix_Del in gii/tree" />
+        <item itemvalue="Go Test.TestRadix_Insert in gii/tree" />
         <item itemvalue="Go Test.TestTrie_PassCnt in gii/tree" />
         <item itemvalue="Go Test.TestTrie_Del in gii/tree" />
         <item itemvalue="Go Build.go build gii" />
@@ -167,7 +193,8 @@
     <MESSAGE value="fix 修改http: superfluous response.WriteHeader call" />
     <MESSAGE value="fix 修改http: superfluous response.WriteHeader call问题" />
     <MESSAGE value="add: implement trie" />
-    <option name="LAST_COMMIT_MESSAGE" value="add: implement trie" />
+    <MESSAGE value="update: change router.handle(), when method not found,use c.String() response" />
+    <option name="LAST_COMMIT_MESSAGE" value="update: change router.handle(), when method not found,use c.String() response" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
