@@ -1,9 +1,30 @@
-package tree
+package gii
 
 import (
+	"net/http"
 	"reflect"
 	"testing"
 )
+
+func reXML(c *Context) {
+	c.XML(http.StatusOK, H{
+		"code":    200,
+		"message": "操作成功",
+	})
+}
+func reJson(c *Context) {
+	c.JSON(http.StatusMultipleChoices, H{
+		"code":    200,
+		"message": "操作成功",
+	})
+}
+
+func getHandles() HandlersChain {
+	return HandlersChain{
+		reXML,
+		reJson,
+	}
+}
 
 func TestNewRadix(t *testing.T) {
 	node := NewRadix()
@@ -15,9 +36,9 @@ func TestNewRadix(t *testing.T) {
 
 func TestRadix_Insert(t *testing.T) {
 	root := NewRadix()
-	root.Insert("/api/user")
-	root.Insert("/api/users")
-	root.Insert("/api/book")
+	root.Insert("/api/user", getHandles())
+	root.Insert("/api/users", getHandles())
+	root.Insert("/api/book", getHandles())
 	if !root.Search("/api/user") {
 		t.Errorf("%s cannot be insert into redix", "/api/user")
 	}
@@ -31,11 +52,11 @@ func TestRadix_Insert(t *testing.T) {
 
 func TestRadix_Del(t *testing.T) {
 	root := NewRadix()
-	root.Insert("/api/user")
-	root.Insert("/api/users")
-	root.Insert("/api/userx")
-	root.Insert("/api/book")
-	root.Insert("/api/")
+	root.Insert("/api/user", getHandles())
+	root.Insert("/api/users", getHandles())
+	root.Insert("/api/userx", getHandles())
+	root.Insert("/api/book", getHandles())
+	root.Insert("/api/", getHandles())
 	if !root.Search("/api/user") {
 		t.Errorf("%s cannot be insert into redix", "/api/user")
 	}
@@ -67,11 +88,11 @@ func TestRadix_Del(t *testing.T) {
 
 func TestRadix_StartWith(t *testing.T) {
 	root := NewRadix()
-	root.Insert("/api/user")
-	root.Insert("/api/users")
-	root.Insert("/api/userx")
-	root.Insert("/api/book")
-	root.Insert("/api/")
+	root.Insert("/api/user", getHandles())
+	root.Insert("/api/users", getHandles())
+	root.Insert("/api/userx", getHandles())
+	root.Insert("/api/book", getHandles())
+	root.Insert("/api/", getHandles())
 	if !root.StartWith("/api/") {
 		t.Errorf("cannot be match by prfix %s", "/api/")
 	}
@@ -82,11 +103,11 @@ func TestRadix_StartWith(t *testing.T) {
 
 func TestRadix_PassCnt(t *testing.T) {
 	root := NewRadix()
-	root.Insert("/api/user")
-	root.Insert("/api/users")
-	root.Insert("/api/userx")
-	root.Insert("/api/book")
-	root.Insert("/api/")
+	root.Insert("/api/user", getHandles())
+	root.Insert("/api/users", getHandles())
+	root.Insert("/api/userx", getHandles())
+	root.Insert("/api/book", getHandles())
+	root.Insert("/api/", getHandles())
 	if root.PassCnt("/api/") != 5 {
 		t.Errorf("prefix \"/api/\" PassCnt != %d", 5)
 	}

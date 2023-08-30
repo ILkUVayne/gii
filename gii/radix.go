@@ -1,6 +1,8 @@
-package tree
+package gii
 
-import "strings"
+import (
+	"strings"
+)
 
 type radixNode struct {
 	path     string
@@ -9,6 +11,7 @@ type radixNode struct {
 	passCnt  int
 	children []*radixNode
 	end      bool
+	handlers HandlersChain
 }
 
 type Radix struct {
@@ -28,6 +31,10 @@ func (r *Radix) Search(word string) bool {
 	return node != nil && node.end == true && node.fullPath == word
 }
 
+func (r *Radix) GetHandles(word string) HandlersChain {
+	return r.root.search(word).handlers
+}
+
 func (r *Radix) StartWith(prefix string) bool {
 	node := r.root.search(prefix)
 	return node != nil && strings.HasPrefix(node.fullPath, prefix)
@@ -41,11 +48,11 @@ func (r *Radix) PassCnt(prefix string) int {
 	return node.passCnt
 }
 
-func (r *Radix) Insert(word string) {
+func (r *Radix) Insert(word string, Handlers HandlersChain) {
 	if r.Search(word) {
 		return
 	}
-	r.root.insert(word)
+	r.root.insert(word, Handlers)
 }
 
 func (r *Radix) Del(word string) bool {
@@ -57,12 +64,12 @@ func (r *Radix) Del(word string) bool {
 
 // ----------------------- Radix Node ---------------------------------
 
-func (rn *radixNode) insert(word string) {
+func (rn *radixNode) insert(word string, handlers HandlersChain) {
 	fullPath := word
 
 	// 空树，直接添加
 	if rn.fullPath == "" && len(rn.children) == 0 {
-		rn.insertWord(word, fullPath)
+		rn.insertWord(word, fullPath, handlers)
 		return
 	}
 walk:
@@ -83,6 +90,7 @@ walk:
 				indices:  rn.indices,
 				passCnt:  rn.passCnt - 1,
 				children: rn.children,
+				handlers: rn.handlers,
 			}
 			// 调整父节点,续接上拆分的子节点
 			rn.indices = string(rn.path[cl])
@@ -90,6 +98,7 @@ walk:
 			rn.path = rn.path[:cl]
 			rn.end = false
 			rn.children = []*radixNode{children}
+			rn.handlers = nil
 		}
 		// 公共长度小于word
 		if cl < len(word) {
@@ -107,12 +116,13 @@ walk:
 			// 没有公共前缀了
 			rn.indices += string(c)
 			children := &radixNode{}
-			children.insertWord(word, fullPath)
+			children.insertWord(word, fullPath, handlers)
 			rn.children = append(rn.children, children)
 			return
 		}
 		// 刚好匹配path
 		rn.end = true
+		rn.handlers = handlers
 		return
 	}
 }
@@ -221,8 +231,9 @@ func (rn *radixNode) commonPrefixLen(word, path string) int {
 	return commonLen
 }
 
-func (rn *radixNode) insertWord(path, fullPath string) {
+func (rn *radixNode) insertWord(path, fullPath string, handlers HandlersChain) {
 	rn.path, rn.fullPath = path, fullPath
 	rn.end = true
 	rn.passCnt++
+	rn.handlers = handlers
 }

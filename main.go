@@ -15,6 +15,7 @@ func main() {
 
 	Router.Get("/ping", handle)
 	Router.Get("/hello", reJson)
+	Router.Post("/hello", reJson)
 	Router.Get("/rexml", reXML)
 
 	Router.Run("localhost:8000")

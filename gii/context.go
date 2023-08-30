@@ -8,12 +8,16 @@ import (
 
 type HandlerFunc func(ctx *Context)
 
+type HandlersChain []HandlerFunc
+
 type Context struct {
 	Rw  http.ResponseWriter
 	Req *http.Request
 
 	Path   string
 	Method string
+
+	Handles HandlersChain
 }
 
 func NewContext(w http.ResponseWriter, r *http.Request) *Context {
@@ -22,6 +26,12 @@ func NewContext(w http.ResponseWriter, r *http.Request) *Context {
 		Req:    r,
 		Path:   r.URL.Path,
 		Method: r.Method,
+	}
+}
+
+func (c *Context) Next() {
+	for _, v := range c.Handles {
+		v(c)
 	}
 }
 

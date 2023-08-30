@@ -1,4 +1,4 @@
-package tree
+package gii
 
 type trieNode struct {
 	passCnt int

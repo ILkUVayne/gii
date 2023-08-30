@@ -4,8 +4,18 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8d306a83-c1ec-4be4-bd08-c670f73c7faf" name="Changes" comment="update: change router.handle(), when method not found,use c.String() response">
+    <list default="true" id="8d306a83-c1ec-4be4-bd08-c670f73c7faf" name="Changes" comment="add: implement radix tree">
+      <change afterPath="$PROJECT_DIR$/gii/router.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gii/Router.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gii/context.go" beforeDir="false" afterPath="$PROJECT_DIR$/gii/context.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gii/gii.go" beforeDir="false" afterPath="$PROJECT_DIR$/gii/gii.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gii/utils.go" beforeDir="false" afterPath="$PROJECT_DIR$/gii/utils.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tree/radix.go" beforeDir="false" afterPath="$PROJECT_DIR$/gii/radix.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tree/radix_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/gii/radix_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tree/trie.go" beforeDir="false" afterPath="$PROJECT_DIR$/gii/trie.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tree/trie_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/gii/trie_test.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,29 +49,35 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultGoTemplateProperty": "Go File",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.go.migrated.go.modules.settings": "true",
-    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
-    "TODO_SCOPE": "All Places",
-    "WebServerToolWindowFactoryState": "false",
-    "go.import.settings.migrated": "true",
-    "go.sdk.automatically.set": "true",
-    "last_opened_file_path": "//wsl$/Ubuntu/home/luoyang/code/go_demo/gin",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
+    &quot;TODO_SCOPE&quot;: &quot;All Places&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;//wsl$/Ubuntu/home/luoyang/code/go_demo/gin&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="\\wsl$\Ubuntu\home\luoyang\code\go_demo\gii\gii" />
     </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="\\wsl$\Ubuntu\home\luoyang\code\go_demo\gii\gii" />
+      <recent name="\\wsl$\Ubuntu\home\luoyang\code\go_demo\gii\router" />
+      <recent name="\\wsl$\Ubuntu\home\luoyang\code\go_demo\gii\render" />
+      <recent name="\\wsl$\Ubuntu\home\luoyang\code\go_demo\gii\context" />
+    </key>
   </component>
-  <component name="RunManager" selected="Go Test.TestRadix_Del in gii/tree">
+  <component name="RunManager" selected="Go Build.go build gii">
     <configuration name="go build gii" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="gii" />
       <working_directory value="$PROJECT_DIR$" />
@@ -69,6 +85,18 @@
       <package value="gii" />
       <directory value="$PROJECT_DIR$" />
       <filePath value="$PROJECT_DIR$/main.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestRadix_Del in gii/tree (1)" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="gii" />
+      <working_directory value="$PROJECT_DIR$/tree" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="gii/tree" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTestRadix_Del\E$" />
       <method v="2" />
     </configuration>
     <configuration name="TestRadix_Del in gii/tree" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
@@ -95,18 +123,6 @@
       <pattern value="^\QTestRadix_Insert\E$" />
       <method v="2" />
     </configuration>
-    <configuration name="TestTrie_Del in gii/tree" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
-      <module name="gii" />
-      <working_directory value="$PROJECT_DIR$/tree" />
-      <root_directory value="$PROJECT_DIR$" />
-      <kind value="PACKAGE" />
-      <package value="gii/tree" />
-      <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$" />
-      <framework value="gotest" />
-      <pattern value="^\QTestTrie_Del\E$" />
-      <method v="2" />
-    </configuration>
     <configuration name="TestTrie_PassCnt in gii/tree" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
       <module name="gii" />
       <working_directory value="$PROJECT_DIR$/tree" />
@@ -121,11 +137,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Go Build.go build gii" />
+        <item itemvalue="Go Test.TestRadix_Del in gii/tree (1)" />
         <item itemvalue="Go Test.TestRadix_Del in gii/tree" />
         <item itemvalue="Go Test.TestRadix_Insert in gii/tree" />
         <item itemvalue="Go Test.TestTrie_PassCnt in gii/tree" />
-        <item itemvalue="Go Test.TestTrie_Del in gii/tree" />
-        <item itemvalue="Go Build.go build gii" />
       </list>
     </recent_temporary>
   </component>
@@ -194,7 +210,8 @@
     <MESSAGE value="fix 修改http: superfluous response.WriteHeader call问题" />
     <MESSAGE value="add: implement trie" />
     <MESSAGE value="update: change router.handle(), when method not found,use c.String() response" />
-    <option name="LAST_COMMIT_MESSAGE" value="update: change router.handle(), when method not found,use c.String() response" />
+    <MESSAGE value="add: implement radix tree" />
+    <option name="LAST_COMMIT_MESSAGE" value="add: implement radix tree" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
