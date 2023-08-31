@@ -24,6 +24,13 @@ func NewRadix() *Radix {
 	}
 }
 
+type methodTree struct {
+	method string
+	root   *Radix
+}
+
+type methodTrees []methodTree
+
 // ----------------------- Radix ---------------------------------
 
 func (r *Radix) Search(word string) bool {
