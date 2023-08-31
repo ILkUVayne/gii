@@ -72,6 +72,7 @@ func (e *Engine) httpHandle(c *Context) {
 	// 判断路由是否存在
 	if !tree.Search(c.Path) {
 		c.String(http.StatusNotFound, "method not found path: %s\n", key)
+		return
 	}
 	// 绑定handles到context
 	c.Handles = tree.GetHandles(c.Path)
