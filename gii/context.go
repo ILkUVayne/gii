@@ -3,8 +3,11 @@ package gii
 import (
 	"fmt"
 	"gii/render"
+	"math"
 	"net/http"
 )
+
+const abortIndex int8 = math.MaxInt8 >> 1
 
 type HandlerFunc func(ctx *Context)
 
@@ -17,6 +20,7 @@ type Context struct {
 	Path   string
 	Method string
 
+	index   int8
 	Handles HandlersChain
 }
 
@@ -26,13 +30,20 @@ func NewContext(w http.ResponseWriter, r *http.Request) *Context {
 		Req:    r,
 		Path:   r.URL.Path,
 		Method: r.Method,
+		index:  -1,
 	}
 }
 
 func (c *Context) Next() {
-	for _, v := range c.Handles {
-		v(c)
+	c.index++
+	for c.index < int8(len(c.Handles)) {
+		c.Handles[c.index](c)
+		c.index++
 	}
+}
+
+func (c *Context) Abort() {
+	c.index = abortIndex
 }
 
 func (c *Context) Status(code int) {
@@ -63,4 +74,9 @@ func (c *Context) JSON(code int, obj any) {
 
 func (c *Context) XML(code int, obj any) {
 	c.render(code, render.XML{Data: obj})
+}
+
+func (c *Context) Fail(code int, err string) {
+	c.Abort()
+	c.JSON(code, H{"message": err})
 }

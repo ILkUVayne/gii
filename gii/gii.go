@@ -29,6 +29,12 @@ func New() *Engine {
 	return engine
 }
 
+func Default() *Engine {
+	engine := New()
+	engine.Use(Logger(), Recovery())
+	return engine
+}
+
 func (e *Engine) Use(handlers ...HandlerFunc) *Engine {
 	e.RouterGroup.Use(handlers...)
 	return e

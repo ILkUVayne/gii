@@ -11,7 +11,7 @@ type User struct {
 }
 
 func main() {
-	Router := gii.New().Use(gii.Base())
+	Router := gii.Default()
 
 	r1 := Router.Group("/v1").Use(gii.V1())
 	{
@@ -35,12 +35,14 @@ func main() {
 		r3.Get("/hello", reJson)
 		r3.Post("/hello", reJson)
 		r3.Get("/rexml", reXML)
+		r3.Get("/panic", panicC)
 	}
 
 	Router.Get("/ping", handle)
 	Router.Get("/hello", reJson)
 	Router.Post("/hello", reJson)
 	Router.Get("/rexml", reXML)
+	Router.Get("/panic", panicC)
 
 	Router.Run("localhost:8000")
 }
@@ -71,5 +73,14 @@ func reXML(c *gii.Context) {
 		"code":    200,
 		"message": "操作成功",
 		"data":    user,
+	})
+}
+
+func panicC(c *gii.Context) {
+	s := []int{1, 2}
+	println(s[3])
+	c.JSON(http.StatusMultipleChoices, gii.H{
+		"code":    200,
+		"message": "操作成功",
 	})
 }
