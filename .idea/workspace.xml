@@ -4,12 +4,9 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8d306a83-c1ec-4be4-bd08-c670f73c7faf" name="Changes" comment="fix: 修改路由不存在时的逻辑">
+    <list default="true" id="8d306a83-c1ec-4be4-bd08-c670f73c7faf" name="Changes" comment="add: 添加logger,recovery默认中间件">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gii/context.go" beforeDir="false" afterPath="$PROJECT_DIR$/gii/context.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gii/gii.go" beforeDir="false" afterPath="$PROJECT_DIR$/gii/gii.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gii/middleware.go" beforeDir="false" afterPath="$PROJECT_DIR$/gii/middleware.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,9 +52,10 @@
     "WebServerToolWindowFactoryState": "false",
     "go.import.settings.migrated": "true",
     "go.sdk.automatically.set": "true",
-    "last_opened_file_path": "//wsl$/Ubuntu/home/luoyang/code/go_demo/gin",
+    "last_opened_file_path": "//wsl$/Ubuntu/home/luoyang/code/go_demo/gii",
     "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)"
+    "node.js.selected.package.eslint": "(autodetect)",
+    "settings.editor.selected.configurable": "terminal"
   }
 }]]></component>
   <component name="RecentsManager">
@@ -73,14 +71,6 @@
     </key>
   </component>
   <component name="RunManager" selected="Go Build.go build gii">
-    <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application">
-      <module name="gii" />
-      <working_directory value="$PROJECT_DIR$" />
-      <kind value="FILE" />
-      <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$" />
-      <method v="2" />
-    </configuration>
     <configuration name="go build gii" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="gii" />
       <working_directory value="$PROJECT_DIR$" />
@@ -136,15 +126,6 @@
       <filePath value="$PROJECT_DIR$" />
       <framework value="gotest" />
       <pattern value="^\QTestTrie_PassCnt\E$" />
-      <method v="2" />
-    </configuration>
-    <configuration default="true" type="GoTestRunConfiguration" factoryName="Go Test">
-      <module name="gii" />
-      <working_directory value="$PROJECT_DIR$" />
-      <kind value="DIRECTORY" />
-      <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$" />
-      <framework value="gotest" />
       <method v="2" />
     </configuration>
     <recent_temporary>
@@ -226,7 +207,9 @@
     <MESSAGE value="update: 使用radix代替map实现路由" />
     <MESSAGE value="add: 实现路由分组以及基础中间件支持" />
     <MESSAGE value="fix: 修改路由不存在时的逻辑" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: 修改路由不存在时的逻辑" />
+    <MESSAGE value="add: 完善中间件实现，补充异常处理" />
+    <MESSAGE value="add: 添加logger,recovery默认中间件" />
+    <option name="LAST_COMMIT_MESSAGE" value="add: 添加logger,recovery默认中间件" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
