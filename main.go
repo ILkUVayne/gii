@@ -13,37 +13,43 @@ type User struct {
 func main() {
 	Router := gii.Default()
 
-	r1 := Router.Group("/v1").Use(gii.V1())
-	{
-		r1.Get("/ping", handle)
-		r1.Get("/hello", reJson)
-		r1.Post("/hello", reJson)
-		r1.Get("/rexml", reXML)
-	}
-
-	r2 := Router.Group("/v2").Use(gii.V2())
-	{
-		r2.Get("/ping", handle)
-		r2.Get("/hello", reJson)
-		r2.Post("/hello", reJson)
-		r2.Get("/rexml", reXML)
-	}
-
-	r3 := r2.Group("/v3").Use(gii.V3())
-	{
-		r3.Get("/ping", handle)
-		r3.Get("/hello", reJson)
-		r3.Post("/hello", reJson)
-		r3.Get("/rexml", reXML)
-		r3.Get("/panic", panicC)
-	}
-
-	Router.Get("/ping", handle)
-	Router.Get("/hello", reJson)
-	Router.Post("/hello", reJson)
-	Router.Get("/rexml", reXML)
-	Router.Get("/panic", panicC)
-
+	//r1 := Router.Group("/v1").Use(gii.V1())
+	//{
+	//	r1.Get("/ping", handle)
+	//	r1.Get("/hello", reJson)
+	//	r1.Post("/hello", reJson)
+	//	r1.Get("/rexml", reXML)
+	//}
+	//
+	//r2 := Router.Group("/v2").Use(gii.V2())
+	//{
+	//	r2.Get("/ping", handle)
+	//	r2.Get("/hello", reJson)
+	//	r2.Post("/hello", reJson)
+	//	r2.Get("/rexml", reXML)
+	//}
+	//
+	//r3 := r2.Group("/v3").Use(gii.V3())
+	//{
+	//	r3.Get("/ping", handle)
+	//	r3.Get("/hello", reJson)
+	//	r3.Post("/hello", reJson)
+	//	r3.Get("/rexml", reXML)
+	//	r3.Get("/panic", panicC)
+	//}
+	//
+	//Router.Get("/ping", handle)
+	//Router.Get("/hello", reJson)
+	//Router.Post("/hello", reJson)
+	//Router.Get("/rexml", reXML)
+	//Router.Get("/panic", panicC)
+	Router.Get("id/:name", panicC)
+	Router.Get("sd/:name", panicC)
+	Router.Get(":id/:name", panicC)
+	Router.Get(":sd/:name", panicC)
+	//Router.Get("ids/:name", panicC)
+	//Router.Get(":ids/:name", panicC)
+	println(111)
 	Router.Run("localhost:8000")
 }
 

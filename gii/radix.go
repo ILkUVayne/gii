@@ -5,13 +5,14 @@ import (
 )
 
 type radixNode struct {
-	path     string
-	fullPath string
-	indices  string
-	passCnt  int
-	children []*radixNode
-	end      bool
-	handlers HandlersChain
+	path      string
+	fullPath  string
+	indices   string
+	passCnt   int
+	children  []*radixNode
+	end       bool
+	wildChild bool
+	handlers  HandlersChain
 }
 
 type Radix struct {
@@ -71,6 +72,15 @@ func (r *Radix) Del(word string) bool {
 
 // ----------------------- Radix Node ---------------------------------
 
+func (rn *radixNode) addChild(child *radixNode) {
+	if rn.wildChild && len(rn.children) > 0 {
+		wildChild := rn.children[len(rn.children)-1]
+		rn.children = append(rn.children[:len(rn.children)-1], child, wildChild)
+		return
+	}
+	rn.children = append(rn.children, child)
+}
+
 func (rn *radixNode) insert(word string, handlers HandlersChain) {
 	fullPath := word
 
@@ -91,19 +101,21 @@ walk:
 		if cl < len(rn.path) {
 			// 创建需要拆分的子节点（非公共前缀）
 			children := &radixNode{
-				path:     rn.path[cl:],
-				fullPath: rn.fullPath,
-				end:      rn.end,
-				indices:  rn.indices,
-				passCnt:  rn.passCnt - 1,
-				children: rn.children,
-				handlers: rn.handlers,
+				path:      rn.path[cl:],
+				fullPath:  rn.fullPath,
+				end:       rn.end,
+				indices:   rn.indices,
+				passCnt:   rn.passCnt - 1,
+				children:  rn.children,
+				handlers:  rn.handlers,
+				wildChild: rn.wildChild,
 			}
 			// 调整父节点,续接上拆分的子节点
 			rn.indices = string(rn.path[cl])
 			rn.fullPath = rn.fullPath[:len(rn.fullPath)-(len(rn.path)-cl)]
 			rn.path = rn.path[:cl]
 			rn.end = false
+			rn.wildChild = false
 			rn.children = []*radixNode{children}
 			rn.handlers = nil
 		}
@@ -120,11 +132,24 @@ walk:
 					continue walk
 				}
 			}
+
+			if c == ':' && rn.wildChild {
+				rn = rn.children[len(rn.children)-1]
+				pathSeg := word
+				pathSeg = strings.SplitN(pathSeg, "/", 2)[0]
+				prefix := fullPath[:strings.Index(fullPath, word)] + rn.path
+				panic("'" + pathSeg +
+					"' in new path '" + fullPath +
+					"' conflicts with existing wildcard '" + rn.path +
+					"' in existing prefix '" + prefix +
+					"'")
+			}
+
 			// 没有公共前缀了
 			rn.indices += string(c)
 			children := &radixNode{}
 			children.insertWord(word, fullPath, handlers)
-			rn.children = append(rn.children, children)
+			rn.addChild(children)
 			return
 		}
 		// 刚好匹配path
@@ -239,8 +264,70 @@ func (rn *radixNode) commonPrefixLen(word, path string) int {
 }
 
 func (rn *radixNode) insertWord(path, fullPath string, handlers HandlersChain) {
+	prefixLen := len(fullPath[:len(fullPath)-len(path)])
+	for {
+		wildCard, i, valid := findWildCard(path)
+		if i < 0 {
+			break
+		}
+		if !valid {
+			panic("only one wildcard per path segment is allowed, has: '" +
+				wildCard + "' in path '" + fullPath + "'")
+		}
+		if len(wildCard) < 2 {
+			panic("wildcards must be named with a non-empty name in path '" + fullPath + "'")
+		}
+		rn.path = path[:i]
+		prefixLen += len(rn.path)
+		rn.fullPath = fullPath[:prefixLen]
+		rn.passCnt++
+
+		prefixLen += len(wildCard)
+		child := &radixNode{
+			path:     wildCard,
+			fullPath: fullPath[:prefixLen],
+			passCnt:  1,
+		}
+		rn.wildChild = true
+		rn.addChild(child)
+		rn = child
+
+		path = path[i:]
+		if len(wildCard) < len(path) {
+			path = path[len(wildCard):]
+			child := &radixNode{}
+			rn.addChild(child)
+			rn = child
+			continue
+		}
+		rn.handlers = handlers
+		rn.end = true
+		return
+	}
+
+	// no wildCard
 	rn.path, rn.fullPath = path, fullPath
 	rn.end = true
 	rn.passCnt++
 	rn.handlers = handlers
+}
+
+func findWildCard(word string) (wildCard string, i int, valid bool) {
+	for start, v := range []byte(word) {
+		if v != ':' {
+			continue
+		}
+
+		valid = true
+		for end, v := range []byte(word[start+1:]) {
+			switch v {
+			case '/':
+				return word[start : start+1+end], start, valid
+			case ':':
+				valid = false
+			}
+		}
+		return word[start:], start, valid
+	}
+	return "", -1, false
 }
