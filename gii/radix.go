@@ -83,6 +83,7 @@ func (rn *radixNode) addChild(child *radixNode) {
 
 func (rn *radixNode) insert(word string, handlers HandlersChain) {
 	fullPath := word
+	rn.passCnt++
 
 	// 空树，直接添加
 	if rn.fullPath == "" && len(rn.children) == 0 {
@@ -93,10 +94,6 @@ walk:
 	for {
 		// 获取公共前缀长度 commonLen
 		cl := rn.commonPrefixLen(word, rn.path)
-		// 公共前缀长度大于0时，必定经过该节点
-		if cl > 0 {
-			rn.passCnt++
-		}
 		// 公共长度小于path,拆分path公共前缀
 		if cl < len(rn.path) {
 			// 创建需要拆分的子节点（非公共前缀）
@@ -110,13 +107,14 @@ walk:
 				handlers:  rn.handlers,
 				wildChild: rn.wildChild,
 			}
-			// 调整父节点,续接上拆分的子节点
+
+			// 续接上拆分的子节点,调整父节点
+			rn.children = []*radixNode{children}
 			rn.indices = string(rn.path[cl])
 			rn.fullPath = rn.fullPath[:len(rn.fullPath)-(len(rn.path)-cl)]
 			rn.path = rn.path[:cl]
 			rn.end = false
 			rn.wildChild = false
-			rn.children = []*radixNode{children}
 			rn.handlers = nil
 		}
 		// 公共长度小于word
@@ -129,27 +127,34 @@ walk:
 			for i := 0; i < len(rn.indices); i++ {
 				if rn.indices[i] == c {
 					rn = rn.children[i]
+					rn.passCnt++
 					continue walk
 				}
 			}
 
 			if c == ':' && rn.wildChild {
 				rn = rn.children[len(rn.children)-1]
-				pathSeg := word
-				pathSeg = strings.SplitN(pathSeg, "/", 2)[0]
-				prefix := fullPath[:strings.Index(fullPath, word)] + rn.path
-				panic("'" + pathSeg +
+				if len(word) > len(rn.path) && word[:len(rn.path)] == rn.path && word[len(rn.path)] == '/' {
+					rn.passCnt++
+					continue walk
+				}
+
+				panic("'" + strings.SplitN(word, "/", 2)[0] +
 					"' in new path '" + fullPath +
 					"' conflicts with existing wildcard '" + rn.path +
-					"' in existing prefix '" + prefix +
+					"' in existing prefix '" + fullPath[:strings.Index(fullPath, word)] + rn.path +
 					"'")
 			}
 
 			// 没有公共前缀了
-			rn.indices += string(c)
-			children := &radixNode{}
-			children.insertWord(word, fullPath, handlers)
-			rn.addChild(children)
+			if c != ':' {
+				rn.indices += string(c)
+				child := &radixNode{passCnt: 1}
+				rn.addChild(child)
+				rn = child
+			}
+
+			rn.insertWord(word, fullPath, handlers)
 			return
 		}
 		// 刚好匹配path
@@ -277,10 +282,12 @@ func (rn *radixNode) insertWord(path, fullPath string, handlers HandlersChain) {
 		if len(wildCard) < 2 {
 			panic("wildcards must be named with a non-empty name in path '" + fullPath + "'")
 		}
-		rn.path = path[:i]
-		prefixLen += len(rn.path)
-		rn.fullPath = fullPath[:prefixLen]
-		rn.passCnt++
+
+		if i > 0 {
+			rn.path = path[:i]
+			prefixLen += len(rn.path)
+			rn.fullPath = fullPath[:prefixLen]
+		}
 
 		prefixLen += len(wildCard)
 		child := &radixNode{
@@ -288,14 +295,14 @@ func (rn *radixNode) insertWord(path, fullPath string, handlers HandlersChain) {
 			fullPath: fullPath[:prefixLen],
 			passCnt:  1,
 		}
-		rn.wildChild = true
 		rn.addChild(child)
+		rn.wildChild = true
 		rn = child
 
 		path = path[i:]
 		if len(wildCard) < len(path) {
 			path = path[len(wildCard):]
-			child := &radixNode{}
+			child := &radixNode{passCnt: 1}
 			rn.addChild(child)
 			rn = child
 			continue
@@ -308,7 +315,6 @@ func (rn *radixNode) insertWord(path, fullPath string, handlers HandlersChain) {
 	// no wildCard
 	rn.path, rn.fullPath = path, fullPath
 	rn.end = true
-	rn.passCnt++
 	rn.handlers = handlers
 }
 

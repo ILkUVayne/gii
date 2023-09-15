@@ -37,18 +37,15 @@ func main() {
 	//	r3.Get("/rexml", reXML)
 	//	r3.Get("/panic", panicC)
 	//}
-	//
+	////
 	//Router.Get("/ping", handle)
 	//Router.Get("/hello", reJson)
 	//Router.Post("/hello", reJson)
 	//Router.Get("/rexml", reXML)
-	//Router.Get("/panic", panicC)
+	Router.Get("/panic", panicC)
 	Router.Get("id/:name", panicC)
-	Router.Get("sd/:name", panicC)
-	Router.Get(":id/:name", panicC)
-	Router.Get(":sd/:name", panicC)
-	//Router.Get("ids/:name", panicC)
-	//Router.Get(":ids/:name", panicC)
+	Router.Get(":id", panicC)
+	Router.Get(":ids", panicC)
 	println(111)
 	Router.Run("localhost:8000")
 }
