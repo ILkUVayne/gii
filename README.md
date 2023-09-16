@@ -2,10 +2,10 @@
 
 web framework written in Go
 
-## support
+## The key features
 
-- [x] Static Router
-- [x] Dynamics Router
-- [x] Radix
-- [x] Middleware
-- [x] context
+-  Static Router
+-  Dynamics Router
+-  Radix
+-  Middleware
+-  context
