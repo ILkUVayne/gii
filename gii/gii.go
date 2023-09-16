@@ -45,7 +45,7 @@ func (e *Engine) addRouter(method string, absolutePath string, handlers Handlers
 	// 获取请求方法对应的radix树
 	tree := e.getMethodTree(method)
 	// 判断路由是否存在
-	if tree.Search(absolutePath) {
+	if tree.Search(absolutePath, static) {
 		log.Fatalf("router %s is exisit", key)
 	}
 	tree.Insert(absolutePath, handlers)
@@ -76,7 +76,7 @@ func (e *Engine) httpHandle(c *Context) {
 	// 获取请求方法对应的radix树
 	tree := e.getMethodTree(c.Method)
 	// 判断路由是否存在
-	if !tree.Search(c.Path) {
+	if !tree.Search(c.Path, param) {
 		c.String(http.StatusNotFound, "method not found path: %s\n", key)
 		return
 	}

@@ -4,13 +4,17 @@ import (
 	"strings"
 )
 
+const (
+	static int = 1
+	param  int = 2
+)
+
 type radixNode struct {
 	path      string
 	fullPath  string
 	indices   string
 	passCnt   int
 	children  []*radixNode
-	end       bool
 	wildChild bool
 	handlers  HandlersChain
 }
@@ -34,22 +38,24 @@ type methodTrees []methodTree
 
 // ----------------------- Radix ---------------------------------
 
-func (r *Radix) Search(word string) bool {
-	node := r.root.search(word)
-	return node != nil && node.end == true && node.fullPath == word
+func (r *Radix) Search(word string, mode int) bool {
+	node := r.root.search(word, mode)
+	//return node != nil && node.end == true && node.fullPath == word
+	return node != nil && node.handlers != nil
 }
 
 func (r *Radix) GetHandles(word string) HandlersChain {
-	return r.root.search(word).handlers
+	println(r.root.search(word, param).fullPath)
+	return r.root.search(word, param).handlers
 }
 
 func (r *Radix) StartWith(prefix string) bool {
-	node := r.root.search(prefix)
+	node := r.root.search(prefix, static)
 	return node != nil && strings.HasPrefix(node.fullPath, prefix)
 }
 
 func (r *Radix) PassCnt(prefix string) int {
-	node := r.root.search(prefix)
+	node := r.root.search(prefix, static)
 	if node == nil || !strings.HasPrefix(node.fullPath, prefix) {
 		return 0
 	}
@@ -57,14 +63,11 @@ func (r *Radix) PassCnt(prefix string) int {
 }
 
 func (r *Radix) Insert(word string, Handlers HandlersChain) {
-	if r.Search(word) {
-		return
-	}
 	r.root.insert(word, Handlers)
 }
 
 func (r *Radix) Del(word string) bool {
-	if !r.Search(word) {
+	if !r.Search(word, static) {
 		return false
 	}
 	return r.root.del(word)
@@ -100,7 +103,6 @@ walk:
 			children := &radixNode{
 				path:      rn.path[cl:],
 				fullPath:  rn.fullPath,
-				end:       rn.end,
 				indices:   rn.indices,
 				passCnt:   rn.passCnt - 1,
 				children:  rn.children,
@@ -113,7 +115,6 @@ walk:
 			rn.indices = string(rn.path[cl])
 			rn.fullPath = rn.fullPath[:len(rn.fullPath)-(len(rn.path)-cl)]
 			rn.path = rn.path[:cl]
-			rn.end = false
 			rn.wildChild = false
 			rn.handlers = nil
 		}
@@ -158,17 +159,20 @@ walk:
 			return
 		}
 		// 刚好匹配path
-		rn.end = true
 		rn.handlers = handlers
 		return
 	}
 }
 
-func (rn *radixNode) search(word string) *radixNode {
+func (rn *radixNode) search(word string, mode int) *radixNode {
 walk:
 	for {
 		prefix := rn.path
 		if len(word) > len(prefix) {
+			// 前缀不匹配时，表示路由不存在
+			if word[:len(prefix)] != prefix {
+				return nil
+			}
 			// 去除公共前缀
 			word = word[len(prefix):]
 			// 获取首字母
@@ -176,9 +180,30 @@ walk:
 			// 遍历首字母集，确定子节点
 			for i := 0; i < len(rn.indices); i++ {
 				if rn.indices[i] == c {
+					// 判断是否可能为动态节点
+					if mode == param &&
+						rn.wildChild &&
+						len(word) >= len(rn.children[i].path) &&
+						rn.children[i].path != word[:len(rn.children[i].path)] {
+						break
+					}
 					rn = rn.children[i]
 					continue walk
 				}
+			}
+			if mode == static && c == ':' && rn.wildChild && len(rn.children) > 0 {
+				rn = rn.children[len(rn.children)-1]
+				continue walk
+			}
+			// 动态路由节点
+			if mode == param && rn.wildChild {
+				wordSplit := strings.SplitN(word, "/", 2)
+				rn = rn.children[len(rn.children)-1]
+				if len(wordSplit) == 1 {
+					return rn
+				}
+				word = rn.path + "/" + wordSplit[1]
+				continue walk
 			}
 		}
 		// 和当前节点精准匹配上了
@@ -186,7 +211,7 @@ walk:
 			return rn
 		}
 		// 走到这里意味着 len(word) <= len(prefix) && word != prefix
-		return rn
+		return nil
 	}
 }
 
@@ -194,16 +219,16 @@ func (rn *radixNode) del(word string) bool {
 	// root 直接精准命中了
 	if rn.fullPath == word {
 		// 如果一个孩子都没有
-		if len(rn.indices) == 0 {
+		if len(rn.children) == 0 {
 			rn.path = ""
 			rn.fullPath = ""
-			rn.end = false
+			rn.handlers = nil
 			rn.passCnt = 0
 			return true
 		}
 
 		// 如果只有一个孩子
-		if len(rn.indices) == 1 {
+		if len(rn.children) == 1 {
 			rn.children[0].path = rn.path + rn.children[0].path
 			*rn = *rn.children[0]
 			return true
@@ -211,7 +236,7 @@ func (rn *radixNode) del(word string) bool {
 
 		// 如果有多个孩子
 		rn.passCnt--
-		rn.end = false
+		rn.handlers = nil
 		return true
 	}
 
@@ -225,6 +250,16 @@ walk:
 		prefix := move.path
 		word = word[len(prefix):]
 		c := word[0]
+
+		if c == ':' && move.wildChild {
+			if move.children[len(move.children)-1].passCnt == 1 {
+				move.children = move.children[:len(move.children)-1]
+				return true
+			}
+			move = move.children[len(move.children)-1]
+			continue walk
+		}
+
 		for i := 0; i < len(move.indices); i++ {
 			if move.indices[i] != c {
 				continue
@@ -232,7 +267,7 @@ walk:
 
 			// 精准命中但是他仍有后继节点
 			if move.children[i].path == word && move.children[i].passCnt > 1 {
-				move.children[i].end = false
+				move.children[i].handlers = nil
 				move.children[i].passCnt--
 				return true
 			}
@@ -247,11 +282,11 @@ walk:
 			move.children = append(move.children[:i], move.children[i+1:]...)
 			move.indices = move.indices[:i] + move.indices[i+1:]
 			// 如果干掉一个孩子后，发现只有一个孩子了，并且自身 end 为 false 则需要进行合并
-			if !move.end && len(move.indices) == 1 {
+			if move.handlers == nil && len(move.indices) == 1 {
 				// 合并自己与唯一的孩子
 				move.path += move.children[0].path
 				move.fullPath = move.children[0].fullPath
-				move.end = move.children[0].end
+				move.handlers = move.children[0].handlers
 				move.indices = move.children[0].indices
 				move.children = move.children[0].children
 			}
@@ -308,13 +343,11 @@ func (rn *radixNode) insertWord(path, fullPath string, handlers HandlersChain) {
 			continue
 		}
 		rn.handlers = handlers
-		rn.end = true
 		return
 	}
 
 	// no wildCard
 	rn.path, rn.fullPath = path, fullPath
-	rn.end = true
 	rn.handlers = handlers
 }
 
