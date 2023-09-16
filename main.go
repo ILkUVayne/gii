@@ -37,12 +37,28 @@ func main() {
 		r3.Get("/rexml", reXML)
 		r3.Get("/panic", panicC)
 	}
-
+	//
 	Router.Get("/ping", handle)
 	Router.Get("/hello", reJson)
 	Router.Post("/hello", reJson)
 	Router.Get("/rexml", reXML)
 	Router.Get("/panic", panicC)
+
+	Router.Get("id/:name", func(ctx *gii.Context) {
+		ctx.String(http.StatusOK, "path: %s", "id/:name")
+	})
+	Router.Get("id/name", func(ctx *gii.Context) {
+		ctx.String(http.StatusOK, "path: %s", "id/name")
+	})
+	Router.Get("id/name/sd", func(ctx *gii.Context) {
+		ctx.String(http.StatusOK, "path: %s", "id/name/sd")
+	})
+	Router.Get("id/:name/asdas", func(ctx *gii.Context) {
+		ctx.String(http.StatusOK, "path: %s", "id/:name/asdas")
+	})
+	Router.Get(":id", func(ctx *gii.Context) {
+		ctx.String(http.StatusOK, "path: %s", ":id")
+	})
 
 	Router.Run("localhost:8000")
 }
