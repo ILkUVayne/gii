@@ -4,10 +4,13 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"sync"
 )
 
 type Engine struct {
 	*RouterGroup
+
+	pool sync.Pool
 
 	trees methodTrees
 }
@@ -26,6 +29,9 @@ func New() *Engine {
 		trees: make(methodTrees, 0, 9),
 	}
 	engine.RouterGroup.engine = engine
+	engine.pool.New = func() any {
+		return engine.allocateContext()
+	}
 	return engine
 }
 
@@ -33,6 +39,10 @@ func Default() *Engine {
 	engine := New()
 	engine.Use(Logger(), Recovery())
 	return engine
+}
+
+func (e *Engine) allocateContext() *Context {
+	return &Context{index: -1}
 }
 
 func (e *Engine) Use(handlers ...HandlerFunc) *Engine {
@@ -67,8 +77,14 @@ func (e *Engine) getMethodTree(method string) *Radix {
 }
 
 func (e *Engine) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	c := NewContext(w, r)
+	// get context from pool
+	c := e.pool.Get().(*Context)
+	c.Rw, c.Req = w, r
+	c.reset()
+	// do handle
 	e.httpHandle(c)
+	// put context to pool
+	e.pool.Put(c)
 }
 
 func (e *Engine) httpHandle(c *Context) {

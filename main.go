@@ -56,6 +56,7 @@ func main() {
 	Router.Get("id/:name/asdas", func(ctx *gii.Context) {
 		ctx.String(http.StatusOK, "path: %s", "id/:name/asdas")
 	})
+	// /favicon.ico
 	Router.Get(":id", func(ctx *gii.Context) {
 		ctx.String(http.StatusOK, "path: %s", ":id")
 	})
