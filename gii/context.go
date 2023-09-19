@@ -24,14 +24,11 @@ type Context struct {
 	Handles HandlersChain
 }
 
-func NewContext(w http.ResponseWriter, r *http.Request) *Context {
-	return &Context{
-		Rw:     w,
-		Req:    r,
-		Path:   r.URL.Path,
-		Method: r.Method,
-		index:  -1,
-	}
+func (c *Context) reset() {
+	c.Path = c.Req.URL.Path
+	c.Method = c.Req.Method
+	c.index = -1
+	c.Handles = nil
 }
 
 func (c *Context) Next() {

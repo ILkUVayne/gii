@@ -45,7 +45,6 @@ func (r *Radix) Search(word string, mode int) bool {
 }
 
 func (r *Radix) GetHandles(word string) HandlersChain {
-	println(r.root.search(word, param).fullPath)
 	return r.root.search(word, param).handlers
 }
 
