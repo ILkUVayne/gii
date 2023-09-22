@@ -182,8 +182,7 @@ walk:
 					// 判断是否可能为动态节点
 					if mode == param &&
 						rn.wildChild &&
-						len(word) >= len(rn.children[i].path) &&
-						rn.children[i].path != word[:len(rn.children[i].path)] {
+						(len(word) < len(rn.children[i].path) || rn.children[i].path != word[:len(rn.children[i].path)]) {
 						break
 					}
 					rn = rn.children[i]
