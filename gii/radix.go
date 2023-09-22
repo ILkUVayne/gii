@@ -5,8 +5,8 @@ import (
 )
 
 const (
-	static int = 1
-	param  int = 2
+	static int = iota
+	param
 )
 
 type radixNode struct {
