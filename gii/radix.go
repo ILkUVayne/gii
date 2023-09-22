@@ -5,8 +5,8 @@ import (
 )
 
 const (
-	static int = 1
-	param  int = 2
+	static int = iota
+	param
 )
 
 type radixNode struct {
@@ -180,12 +180,26 @@ walk:
 			for i := 0; i < len(rn.indices); i++ {
 				if rn.indices[i] == c {
 					// 判断是否可能为动态节点
-					if mode == param &&
-						rn.wildChild &&
-						len(word) >= len(rn.children[i].path) &&
-						rn.children[i].path != word[:len(rn.children[i].path)] {
-						break
+					if mode == param && rn.wildChild {
+						if len(word) < len(rn.children[i].path) {
+							break
+						}
+
+						if len(word) == len(rn.children[i].path) && rn.children[i].path != word {
+							break
+						}
+
+						if len(word) > len(rn.children[i].path) {
+							if strings.IndexAny(word, "/") == -1 {
+								return rn.children[len(rn.children)-1]
+							}
+
+							if rn.children[i].path != word[:len(rn.children[i].path)] {
+								break
+							}
+						}
 					}
+					// 静态节点
 					rn = rn.children[i]
 					continue walk
 				}
