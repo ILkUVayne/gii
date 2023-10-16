@@ -45,7 +45,7 @@ func (e *Engine) allocateContext() *Context {
 	return &Context{index: -1}
 }
 
-func (e *Engine) Use(handlers ...HandlerFunc) *Engine {
+func (e *Engine) Use(handlers ...HandlerFunc) GRoutes {
 	e.RouterGroup.Use(handlers...)
 	return e
 }
