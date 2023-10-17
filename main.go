@@ -1,8 +1,7 @@
 package main
 
 import (
-	"gii/gii"
-	"net/http"
+	"gii/demo/config"
 )
 
 type User struct {
@@ -11,115 +10,5 @@ type User struct {
 }
 
 func main() {
-	Router := gii.Default()
-
-	r1 := Router.Group("/v1").Use(gii.V1())
-	{
-		r1.Get("/ping", handle)
-		r1.Get("/hello", reJson)
-		r1.Post("/hello", reJson)
-		r1.Get("/rexml", reXML)
-	}
-
-	r2 := Router.Group("/v2").Use(gii.V2())
-	{
-		r2.Get("/ping", handle)
-		r2.Get("/hello", reJson)
-		r2.Post("/hello", reJson)
-		r2.Get("/rexml", reXML)
-	}
-
-	r3 := r2.Group("/v3").Use(gii.V3())
-	{
-		r3.Get("/ping", handle)
-		r3.Get("/hello", reJson)
-		r3.Post("/hello", reJson)
-		r3.Get("/rexml", reXML)
-		r3.Get("/panic", panicC)
-	}
-	//
-	Router.Get("/ping", handle)
-	Router.Get("/hello", reJson)
-	Router.Post("/hello", reJson)
-	Router.Get("/rexml", reXML)
-	Router.Get("/panic", panicC)
-
-	Router.Get("id/:name", func(ctx *gii.Context) {
-		ctx.String(http.StatusOK, "path: %s", "id/:name")
-	})
-	Router.Get("id/name", func(ctx *gii.Context) {
-		ctx.String(http.StatusOK, "path: %s", "id/name")
-	})
-	Router.Get("id/name/sd", func(ctx *gii.Context) {
-		ctx.String(http.StatusOK, "path: %s", "id/name/sd")
-	})
-	Router.Get("id/:name/asdas", func(ctx *gii.Context) {
-		ctx.String(http.StatusOK, "path: %s", "id/:name/asdas")
-	})
-	// /favicon.ico
-	Router.Get(":id", func(ctx *gii.Context) {
-		ctx.String(http.StatusOK, "path: %s", ":id")
-	})
-	Router.Delete("book/:id", func(ctx *gii.Context) {
-		ctx.String(http.StatusOK, "path: %s", "book/:id")
-	})
-
-	Router.Patch("book1", func(ctx *gii.Context) {
-		ctx.String(http.StatusOK, "path: %s", "book1")
-	})
-
-	Router.Put("book2", func(ctx *gii.Context) {
-		ctx.String(http.StatusOK, "path: %s", "book2")
-	})
-
-	Router.Options("book3", func(ctx *gii.Context) {
-		ctx.String(http.StatusOK, "path: %s", "book3")
-	})
-
-	Router.Head("book4", func(ctx *gii.Context) {
-		ctx.String(http.StatusOK, "path: %s", "book4")
-	})
-
-	Router.Any("bookAny", func(ctx *gii.Context) {
-		ctx.String(http.StatusOK, "path: %s", "bookAny")
-	})
-	Router.Run("localhost:8000")
-}
-
-func handle(c *gii.Context) {
-	c.String(http.StatusOK, "s: %s", "asdaksda")
-}
-
-func reJson(c *gii.Context) {
-	user := User{
-		Name: "sdja",
-		Age:  1,
-	}
-	c.JSON(http.StatusMultipleChoices, gii.H{
-		"code":    200,
-		"message": "操作成功",
-		"data":    user,
-	})
-}
-
-func reXML(c *gii.Context) {
-	user := User{
-		Name: "sdja",
-		Age:  1,
-	}
-
-	c.XML(http.StatusOK, gii.H{
-		"code":    200,
-		"message": "操作成功",
-		"data":    user,
-	})
-}
-
-func panicC(c *gii.Context) {
-	s := []int{1, 2}
-	println(s[3])
-	c.JSON(http.StatusMultipleChoices, gii.H{
-		"code":    200,
-		"message": "操作成功",
-	})
+	config.Router().Run("localhost:8000")
 }
