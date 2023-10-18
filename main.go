@@ -1,41 +1,31 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
+	"gii/glog"
+	"gii/orm"
+	"gii/tools"
 	_ "github.com/go-sql-driver/mysql"
-	"log"
 )
 
 func main() {
 	//config.Router().Run("localhost:8000")
-	db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/gii")
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	defer func(db *sql.DB) {
-		err := db.Close()
-		if err != nil {
-			log.Fatal(err.Error())
-		}
-	}(db)
-	rows, err := db.Query("SELECT * FROM user")
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	defer func(rows *sql.Rows) {
-		err := rows.Close()
-		if err != nil {
-			log.Fatal(err.Error())
-		}
-	}(rows)
+	glog.SetLevel(glog.InfoLevel)
+	engine := orm.NewEngine("mysql", "root:root@tcp(127.0.0.1:3306)/gii")
+	defer engine.Close()
+	s := engine.NewSession()
+
+	s.Raw("CREATE TABLE book(Name text);").Exec()
+	s.Raw("CREATE TABLE book(Name text);").Exec()
+	rows := s.Raw("SELECT * FROM user").Query()
+	defer tools.Close(rows)
 
 	for rows.Next() {
 		var id int
 		var name string
 		err := rows.Scan(&id, &name)
 		if err != nil {
-			panic(err.Error())
+			panic(err)
 		}
 		fmt.Println(id, name)
 	}
