@@ -1,21 +1,28 @@
-package orm
+package session
 
 import (
 	"database/sql"
 	"gii/glog"
+	"gii/orm/dialect"
+	"gii/orm/schema"
 	"strings"
 	"sync"
 )
 
 type Session struct {
-	db      *sql.DB
-	sql     strings.Builder
-	sqlVars []interface{}
-	mux     sync.Mutex
+	db       *sql.DB
+	dialect  dialect.Dialect
+	refTable *schema.Schema
+	sql      strings.Builder
+	sqlVars  []interface{}
+	mux      sync.Mutex
 }
 
-func NewSession(db *sql.DB) *Session {
-	return &Session{db: db}
+func NewSession(db *sql.DB, dialect dialect.Dialect) *Session {
+	return &Session{
+		db:      db,
+		dialect: dialect,
+	}
 }
 
 func (s *Session) Clear() {
@@ -38,7 +45,7 @@ func (s *Session) Raw(sql string, sqlVars ...interface{}) *Session {
 func (s *Session) Exec() sql.Result {
 	defer s.Clear()
 	glog.Info(s.sql.String(), s.sqlVars)
-	result, err := s.Db().Exec(s.sql.String(), s.sqlVars...)
+	result, err := s.db.Exec(s.sql.String(), s.sqlVars...)
 	if err != nil {
 		glog.Error(err)
 	}

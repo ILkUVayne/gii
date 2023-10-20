@@ -3,10 +3,13 @@ package orm
 import (
 	"database/sql"
 	"gii/glog"
+	"gii/orm/dialect"
+	"gii/orm/session"
 )
 
 type Engine struct {
-	db *sql.DB
+	db      *sql.DB
+	dialect dialect.Dialect
 }
 
 func NewEngine(driver, source string) (e *Engine) {
@@ -19,7 +22,10 @@ func NewEngine(driver, source string) (e *Engine) {
 	if err = db.Ping(); err != nil {
 		glog.Error(err)
 	}
-	e = &Engine{db: db}
+	e = &Engine{
+		db:      db,
+		dialect: dialect.GetDialect(driver),
+	}
 	glog.Info("Connect database success")
 	return
 }
@@ -31,6 +37,6 @@ func (e *Engine) Close() {
 	glog.Info("Close database success")
 }
 
-func (e *Engine) NewSession() *Session {
-	return NewSession(e.db)
+func (e *Engine) NewSession() *session.Session {
+	return session.NewSession(e.db, e.dialect)
 }
