@@ -5,7 +5,6 @@ import (
 	"gii/orm/dialect"
 	"go/ast"
 	"reflect"
-	"strings"
 )
 
 // tags
@@ -72,18 +71,4 @@ func Parse(dest interface{}, dialect dialect.Dialect) *Schema {
 		}
 	}
 	return schema
-}
-
-func GetTag(tags *string) map[string]interface{} {
-	tagArr := strings.Split(*tags, ";")
-	ts := make(map[string]interface{})
-	for _, v := range tagArr {
-		if strings.IndexAny("v", ":") == -1 {
-			ts[v] = nil
-			continue
-		}
-		v1 := strings.Split(v, ":")
-		ts[v1[0]] = v1[1]
-	}
-	return ts
 }
