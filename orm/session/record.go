@@ -12,6 +12,21 @@ func (s *Session) Set(typ clause.Type, vars ...interface{}) {
 	s.clause.Set(typ, vars...)
 }
 
+func (s *Session) Limit(num int) *Session {
+	s.clause.Set(clause.LIMIT, num)
+	return s
+}
+
+func (s *Session) Where(desc string, args ...interface{}) *Session {
+	s.clause.Set(clause.WHERE, append([]interface{}{desc}, args...)...)
+	return s
+}
+
+func (s *Session) OrderBy(desc string) *Session {
+	s.clause.Set(clause.ORDERBy, desc)
+	return s
+}
+
 func (s *Session) Insert(dest ...interface{}) (int64, error) {
 	var table *schema.Schema
 	var fieldNames []string

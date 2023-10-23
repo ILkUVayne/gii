@@ -1,7 +1,6 @@
 package orm
 
 import (
-	"gii/orm/clause"
 	_ "github.com/go-sql-driver/mysql"
 	"testing"
 )
@@ -38,8 +37,7 @@ func TestSession_All(t *testing.T) {
 	defer engine.Close()
 	s := engine.NewSession().Model(&UserAddr{})
 	var userAddr []UserAddr
-	s.Set(clause.LIMIT, 2)
-	s.All(&userAddr)
+	s.Where("id > ?", 1).OrderBy("id desc").Limit(2).All(&userAddr)
 	if len(userAddr) != 2 {
 		t.Error("failed to query all")
 	}
