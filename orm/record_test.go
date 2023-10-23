@@ -6,15 +6,16 @@ import (
 )
 
 type UserAddr struct {
-	Id   int    `orm:"primaryKey;column:id;NOT NULL;AUTO_INCREMENT" json:"id"`
-	Addr string `orm:"column:addr;type:varchar(255)" json:"addr"`
-	No   int    `orm:"column:no" json:"no"`
+	Id     int    `orm:"primaryKey;column:id;NOT NULL;AUTO_INCREMENT" json:"id"`
+	Addr   string `orm:"column:addr;type:varchar(255)" json:"addr"`
+	No     int    `orm:"column:no" json:"no"`
+	IdCard string `orm:"column:id_card;type:varchar(70)" json:"id_card"`
 }
 
 var (
-	addr1 = &UserAddr{Addr: "xxxx路1号", No: 18}
-	addr2 = &UserAddr{Addr: "xxxx路2号", No: 25}
-	addr3 = &UserAddr{Addr: "xxxx路3号", No: 25}
+	addr1 = &UserAddr{Addr: "xxxx路1号", IdCard: "11111", No: 18}
+	addr2 = &UserAddr{Addr: "xxxx路2号", IdCard: "22222", No: 25}
+	addr3 = &UserAddr{Addr: "xxxx路3号", IdCard: "33333", No: 25}
 )
 
 func TestSession_Insert(t *testing.T) {
@@ -76,7 +77,7 @@ func TestSession_First(t *testing.T) {
 	defer engine.Close()
 	s := engine.NewSession().Model(&UserAddr{})
 	var userAddr []UserAddr
-	s.Where("addr LIKE '%路%'").First(&userAddr)
+	s.Where("addr LIKE '%路%'").OrderBy("id desc").First(&userAddr)
 	if len(userAddr) != 1 {
 		t.Error("get userAddr First failed")
 	}
