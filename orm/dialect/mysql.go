@@ -46,7 +46,9 @@ func (m *mysql) TagOf(p reflect.StructField) map[string]interface{} {
 				// 单字段标签
 				if v1 == "primaryKey" {
 					res["PrimaryKey"] = p.Name
+					continue
 				}
+				tag += v1 + " "
 				continue
 			}
 			// 标签对

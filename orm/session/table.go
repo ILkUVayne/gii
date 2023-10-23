@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"gii/glog"
 	"gii/orm/schema"
-	"gii/tools"
 	"reflect"
 	"strings"
 )
@@ -26,28 +25,33 @@ func (s *Session) Model(m interface{}) *Session {
 func (s *Session) CreateTable() {
 	table := s.RefTable()
 	if s.HasTable() {
-		glog.ErrorF("table %s is exist", table.Name)
+		glog.InfoF("table %s is exist", table.UnderscoreName)
+		return
 	}
 
 	var columns []string
 	for _, field := range table.Fields {
-		columns = append(columns, fmt.Sprintf("`%s` %s %s", field.Name, field.Type, field.Tag))
+		columns = append(columns, fmt.Sprintf("`%s` %s %s", field.Column, field.Type, field.Tag))
 	}
 	if table.PrimaryKey != "" {
 		columns = append(columns, fmt.Sprintf("PRIMARY KEY (`%s`)", table.PrimaryKey))
 	}
 	columnDesc := strings.Join(columns, ",")
-	s.Raw(fmt.Sprintf("CREATE TABLE `%s` (%s)", tools.CamelCaseToUnderscore(table.Name), columnDesc)).Exec()
+	s.Raw(fmt.Sprintf("CREATE TABLE `%s` (%s)", table.UnderscoreName, columnDesc)).Exec()
 }
 
 func (s *Session) DropTable() {
-	s.Raw(fmt.Sprintf("DROP TABLE %s", s.RefTable().Name)).Exec()
+	if !s.HasTable() {
+		glog.InfoF("table %s not exist", s.RefTable().UnderscoreName)
+		return
+	}
+	s.Raw(fmt.Sprintf("DROP TABLE %s", s.RefTable().UnderscoreName)).Exec()
 }
 
 func (s *Session) HasTable() bool {
-	sql, values := s.dialect.TableExistSql(s.RefTable().Name)
+	sql, values := s.dialect.TableExistSql(s.RefTable().UnderscoreName)
 	res := s.Raw(sql, values...).QueryRow()
 	var tmp string
 	_ = res.Scan(&tmp)
-	return tmp == s.RefTable().Name
+	return tmp == s.RefTable().UnderscoreName
 }

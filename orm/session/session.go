@@ -3,6 +3,7 @@ package session
 import (
 	"database/sql"
 	"gii/glog"
+	"gii/orm/clause"
 	"gii/orm/dialect"
 	"gii/orm/schema"
 	"strings"
@@ -13,6 +14,7 @@ type Session struct {
 	db       *sql.DB
 	dialect  dialect.Dialect
 	refTable *schema.Schema
+	clause   clause.Clause
 	sql      strings.Builder
 	sqlVars  []interface{}
 	mux      sync.Mutex
@@ -29,6 +31,8 @@ func (s *Session) Clear() {
 	s.mux.Lock()
 	defer s.mux.Unlock()
 	s.sql.Reset()
+	s.sqlVars = nil
+	s.clause = clause.Clause{}
 }
 
 func (s *Session) Db() *sql.DB {
