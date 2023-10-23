@@ -42,3 +42,42 @@ func TestSession_All(t *testing.T) {
 		t.Error("failed to query all")
 	}
 }
+
+func TestSession_Update(t *testing.T) {
+	engine := NewEngine("mysql", "root:root@tcp(127.0.0.1:3306)/gii")
+	defer engine.Close()
+	s := engine.NewSession().Model(&UserAddr{})
+	i := s.Where("id  = ?", 2).Update("addr", "ssss路1号", "no", 255)
+	if i != 1 {
+		t.Errorf("update line failed %d", i)
+	}
+	s.Where("id  = ?", 3).Update(map[string]interface{}{
+		"addr": "qqqq路1号",
+		"no":   333,
+	})
+	var userAddr []UserAddr
+	s.Where("id  = ?", 3).All(&userAddr)
+	if userAddr[0].Addr != "qqqq路1号" || userAddr[0].No != 333 {
+		t.Errorf("update line failed id = %d", i)
+	}
+}
+
+func TestSession_Count(t *testing.T) {
+	engine := NewEngine("mysql", "root:root@tcp(127.0.0.1:3306)/gii")
+	defer engine.Close()
+	s := engine.NewSession().Model(&UserAddr{})
+	if s.Count() != 3 {
+		t.Error("get userAddr count failed")
+	}
+}
+
+func TestSession_First(t *testing.T) {
+	engine := NewEngine("mysql", "root:root@tcp(127.0.0.1:3306)/gii")
+	defer engine.Close()
+	s := engine.NewSession().Model(&UserAddr{})
+	var userAddr []UserAddr
+	s.Where("addr LIKE '%路%'").First(&userAddr)
+	if len(userAddr) != 1 {
+		t.Error("get userAddr First failed")
+	}
+}

@@ -68,3 +68,47 @@ func (s *Session) All(values interface{}) {
 	}
 	tools.Close(rows)
 }
+
+func (s *Session) First(value interface{}) {
+	s.Limit(1).All(value)
+}
+
+func (s *Session) Update(kv ...interface{}) int64 {
+	UpdateMap, ok := kv[0].(map[string]interface{})
+	if !ok {
+		UpdateMap = make(map[string]interface{})
+		for i := 0; i < len(kv); i += 2 {
+			UpdateMap[kv[i].(string)] = kv[i+1]
+		}
+	}
+	s.clause.Set(clause.UPDATE, s.RefTable().UnderscoreName, UpdateMap)
+	sql, sqlVar := s.clause.Build(clause.UPDATE, clause.WHERE)
+	res := s.Raw(sql, sqlVar...).Exec()
+	affected, err := res.RowsAffected()
+	if err != nil {
+		glog.Error(err)
+	}
+	return affected
+}
+
+func (s *Session) Delete() int64 {
+	s.clause.Set(clause.DELETE, s.RefTable().UnderscoreName)
+	sql, sqlVar := s.clause.Build(clause.DELETE, clause.WHERE)
+	res := s.Raw(sql, sqlVar).Exec()
+	affected, err := res.RowsAffected()
+	if err != nil {
+		glog.Error(err)
+	}
+	return affected
+}
+
+func (s *Session) Count() int64 {
+	s.clause.Set(clause.COUNT, s.RefTable().UnderscoreName)
+	sql, sqlVar := s.clause.Build(clause.COUNT, clause.WHERE)
+	rows := s.Raw(sql, sqlVar...).QueryRow()
+	var count int64
+	if err := rows.Scan(&count); err != nil {
+		glog.Error(err)
+	}
+	return count
+}
