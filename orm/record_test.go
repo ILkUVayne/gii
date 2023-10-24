@@ -16,6 +16,7 @@ var (
 	addr1 = &UserAddr{Addr: "xxxx路1号", IdCard: "11111", No: 18}
 	addr2 = &UserAddr{Addr: "xxxx路2号", IdCard: "22222", No: 25}
 	addr3 = &UserAddr{Addr: "xxxx路3号", IdCard: "33333", No: 25}
+	addr4 = &UserAddr{Addr: "xxxx路3号", IdCard: "d1", No: 25}
 )
 
 func TestSession_Insert(t *testing.T) {
@@ -60,6 +61,26 @@ func TestSession_Update(t *testing.T) {
 	s.Where("id  = ?", 3).All(&userAddr)
 	if userAddr[0].Addr != "qqqq路1号" || userAddr[0].No != 333 {
 		t.Errorf("update line failed id = %d", i)
+	}
+}
+
+func TestSession_Delete(t *testing.T) {
+	engine := NewEngine("mysql", "root:root@tcp(127.0.0.1:3306)/gii")
+	defer engine.Close()
+	s := engine.NewSession().Model(&UserAddr{})
+	_, err := s.Insert(addr4)
+	if err != nil {
+		t.Error(err)
+	}
+
+	i := s.Where("id_card = ?", "d1").Delete()
+	if i != 1 {
+		t.Error("delete failed")
+	}
+	var userAddr []UserAddr
+	s.Where("id_card = ?", "d1").First(&userAddr)
+	if len(userAddr) == 1 {
+		t.Error("delete failed")
 	}
 }
 

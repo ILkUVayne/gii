@@ -94,7 +94,7 @@ func (s *Session) Update(kv ...interface{}) int64 {
 func (s *Session) Delete() int64 {
 	s.clause.Set(clause.DELETE, s.RefTable().UnderscoreName)
 	sql, sqlVar := s.clause.Build(clause.DELETE, clause.WHERE)
-	res := s.Raw(sql, sqlVar).Exec()
+	res := s.Raw(sql, sqlVar...).Exec()
 	affected, err := res.RowsAffected()
 	if err != nil {
 		glog.Error(err)
