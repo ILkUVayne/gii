@@ -36,16 +36,20 @@ func (s *Session) Insert(dest ...interface{}) (int64, error) {
 			table = s.Model(value).RefTable()
 			fieldNames = table.SaveFields(value)
 		}
+		s.CallMethod(BeforeInsert, value)
 		recordValues = append(recordValues, table.RecordValues(value))
+		//s.CallMethod(AfterInsert, value)
 	}
 	s.clause.Set(clause.INSERT, table.UnderscoreName, fieldNames)
 	s.clause.Set(clause.VALUES, recordValues...)
 	sql, sqlVars := s.clause.Build(clause.INSERT, clause.VALUES)
 	res := s.Raw(sql, sqlVars...).Exec()
+	s.CallMethod(AfterInsert, nil)
 	return res.RowsAffected()
 }
 
 func (s *Session) All(values interface{}) {
+	s.CallMethod(BeforeQuery, nil)
 	destSlice := reflect.Indirect(reflect.ValueOf(values))
 	destType := destSlice.Type().Elem()
 	table := s.Model(reflect.New(destType).Elem().Interface()).RefTable()
@@ -64,6 +68,7 @@ func (s *Session) All(values interface{}) {
 		if err := rows.Scan(values...); err != nil {
 			glog.Error(err)
 		}
+		s.CallMethod(AfterQuery, dest.Addr().Interface())
 		destSlice.Set(reflect.Append(destSlice, dest))
 	}
 	tools.Close(rows)
@@ -74,6 +79,7 @@ func (s *Session) First(value interface{}) {
 }
 
 func (s *Session) Update(kv ...interface{}) int64 {
+	s.CallMethod(BeforeUpdate, nil)
 	UpdateMap, ok := kv[0].(map[string]interface{})
 	if !ok {
 		UpdateMap = make(map[string]interface{})
@@ -88,10 +94,12 @@ func (s *Session) Update(kv ...interface{}) int64 {
 	if err != nil {
 		glog.Error(err)
 	}
+	s.CallMethod(AfterUpdate, nil)
 	return affected
 }
 
 func (s *Session) Delete() int64 {
+	s.CallMethod(BeforeDelete, nil)
 	s.clause.Set(clause.DELETE, s.RefTable().UnderscoreName)
 	sql, sqlVar := s.clause.Build(clause.DELETE, clause.WHERE)
 	res := s.Raw(sql, sqlVar...).Exec()
@@ -99,6 +107,7 @@ func (s *Session) Delete() int64 {
 	if err != nil {
 		glog.Error(err)
 	}
+	s.CallMethod(AfterDelete, nil)
 	return affected
 }
 

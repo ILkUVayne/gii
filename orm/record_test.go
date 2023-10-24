@@ -1,6 +1,8 @@
 package orm
 
 import (
+	"gii/glog"
+	"gii/orm/session"
 	_ "github.com/go-sql-driver/mysql"
 	"testing"
 )
@@ -10,6 +12,39 @@ type UserAddr struct {
 	Addr   string `orm:"column:addr;type:varchar(255)" json:"addr"`
 	No     int    `orm:"column:no" json:"no"`
 	IdCard string `orm:"column:id_card;type:varchar(70)" json:"id_card"`
+}
+
+func (a *UserAddr) BeforeInsert(s *session.Session) error {
+	glog.Info("before inert", a)
+	a.No = 888
+	return nil
+}
+
+func (a *UserAddr) AfterInsert(s *session.Session) error {
+	glog.Info("after inert", a)
+	return nil
+}
+
+func (a *UserAddr) BeforeQuery(s *session.Session) error {
+	glog.Info("before query", a)
+	return nil
+}
+
+func (a *UserAddr) AfterQuery(s *session.Session) error {
+	glog.Info("after query", a)
+	a.IdCard = "************"
+	return nil
+}
+
+func (a *UserAddr) BeforeUpdate(s *session.Session) error {
+	glog.Info("before update", a)
+	a.Addr = "修改啊啊啊"
+	return nil
+}
+
+func (a *UserAddr) AfterUpdate(s *session.Session) error {
+	glog.Info("after update", a)
+	return nil
 }
 
 var (
