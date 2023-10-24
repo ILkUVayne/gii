@@ -9,6 +9,8 @@ import (
 func Router() *gii.Engine {
 	Router := gii.Default()
 
+	Router.Post("user", controller.AddUser)
+
 	r1 := Router.Group("/v1").Use(gii.V1())
 	{
 		r1.Get("/ping", controller.Handle)

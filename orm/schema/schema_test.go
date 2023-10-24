@@ -6,7 +6,7 @@ import (
 )
 
 type User struct {
-	Id   int `orm:"PRIMARY KEY"`
+	Id   int `orm:"primaryKey"`
 	Name string
 }
 
