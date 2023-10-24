@@ -12,6 +12,8 @@ type Engine struct {
 	dialect dialect.Dialect
 }
 
+type TxFunc func(*session.Session) (interface{}, error)
+
 func NewEngine(driver, source string) (e *Engine) {
 	// connect db
 	db, err := sql.Open(driver, source)
@@ -39,4 +41,31 @@ func (e *Engine) Close() {
 
 func (e *Engine) NewSession() *session.Session {
 	return session.NewSession(e.db, e.dialect)
+}
+
+func (e *Engine) Transaction(f TxFunc) (result interface{}, err error) {
+	s := e.NewSession()
+	if err = s.Begin(); err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		defer func() {
+			if p := recover(); p != nil {
+				_ = s.RollBack()
+				panic(p) // re-throw panic after Rollback
+			} else if err != nil {
+				_ = s.RollBack() // err is non-nil; don't change it
+			} else {
+				defer func() {
+					if err != nil {
+						_ = s.RollBack()
+					}
+				}()
+				err = s.Commit() // err is nil; if Commit returns error update err
+			}
+		}()
+	}()
+
+	return f(s)
 }
