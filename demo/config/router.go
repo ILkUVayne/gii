@@ -43,16 +43,18 @@ func Router() *gii.Engine {
 	Router.Get("/panic", controller.PanicC)
 
 	Router.Get("id/:name", func(ctx *gii.Context) {
-		ctx.String(http.StatusOK, "path: %s", "id/:name")
+		// http://localhost:8000/id/ly?id=21&name=ly
+		ctx.String(http.StatusOK, "path: %s :name=%s, id=%s, name=%s", "id/:name", ctx.Params("name"), ctx.Query("id"), ctx.Query("name"))
 	})
 	Router.Get("id/name", func(ctx *gii.Context) {
-		ctx.String(http.StatusOK, "path: %s", "id/name")
+		// http://localhost:8000/id/name?id=21&name=ly
+		ctx.String(http.StatusOK, "path: %s, id=%s, name=%s", "id/name", ctx.Query("id"), ctx.DefaultQuery("name", "lyy"))
 	})
 	Router.Get("id/name/sd", func(ctx *gii.Context) {
 		ctx.String(http.StatusOK, "path: %s", "id/name/sd")
 	})
-	Router.Get("id/:name/asdas", func(ctx *gii.Context) {
-		ctx.String(http.StatusOK, "path: %s", "id/:name/asdas")
+	Router.Get("id/:name/asdas/:no", func(ctx *gii.Context) {
+		ctx.String(http.StatusOK, "path: %s, :name=%s, :no=%s", "id/:name/asdas/:no", ctx.Params("name"), ctx.Params("no"))
 	})
 	// /favicon.ico
 	Router.Get(":id", func(ctx *gii.Context) {
