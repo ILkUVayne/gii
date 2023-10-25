@@ -38,23 +38,24 @@ type methodTrees []methodTree
 
 // ----------------------- Radix ---------------------------------
 
-func (r *Radix) Search(word string, mode int) bool {
-	node := r.root.search(word, mode)
+func (r *Radix) Search(word string, mode int) (bool, map[string]string) {
+	node, params := r.root.search(word, mode)
 	//return node != nil && node.end == true && node.fullPath == word
-	return node != nil && node.handlers != nil
+	return node != nil && node.handlers != nil, params
 }
 
 func (r *Radix) GetHandles(word string) HandlersChain {
-	return r.root.search(word, param).handlers
+	node, _ := r.root.search(word, param)
+	return node.handlers
 }
 
 func (r *Radix) StartWith(prefix string) bool {
-	node := r.root.search(prefix, static)
+	node, _ := r.root.search(prefix, static)
 	return node != nil && strings.HasPrefix(node.fullPath, prefix)
 }
 
 func (r *Radix) PassCnt(prefix string) int {
-	node := r.root.search(prefix, static)
+	node, _ := r.root.search(prefix, static)
 	if node == nil || !strings.HasPrefix(node.fullPath, prefix) {
 		return 0
 	}
@@ -66,7 +67,8 @@ func (r *Radix) Insert(word string, Handlers HandlersChain) {
 }
 
 func (r *Radix) Del(word string) bool {
-	if !r.Search(word, static) {
+	exist, _ := r.Search(word, static)
+	if !exist {
 		return false
 	}
 	return r.root.del(word)
@@ -163,14 +165,15 @@ walk:
 	}
 }
 
-func (rn *radixNode) search(word string, mode int) *radixNode {
+func (rn *radixNode) search(word string, mode int) (*radixNode, map[string]string) {
+	params := make(map[string]string)
 walk:
 	for {
 		prefix := rn.path
 		if len(word) > len(prefix) {
 			// 前缀不匹配时，表示路由不存在
 			if word[:len(prefix)] != prefix {
-				return nil
+				return nil, nil
 			}
 			// 去除公共前缀
 			word = word[len(prefix):]
@@ -191,9 +194,9 @@ walk:
 
 						if len(word) > len(rn.children[i].path) {
 							if strings.IndexAny(word, "/") == -1 {
-								return rn.children[len(rn.children)-1]
+								params[rn.children[len(rn.children)-1].path[1:]] = word
+								return rn.children[len(rn.children)-1], params
 							}
-
 							if rn.children[i].path != word[:len(rn.children[i].path)] {
 								break
 							}
@@ -212,8 +215,9 @@ walk:
 			if mode == param && rn.wildChild {
 				wordSplit := strings.SplitN(word, "/", 2)
 				rn = rn.children[len(rn.children)-1]
+				params[rn.path[1:]] = wordSplit[0]
 				if len(wordSplit) == 1 {
-					return rn
+					return rn, params
 				}
 				word = rn.path + "/" + wordSplit[1]
 				continue walk
@@ -221,10 +225,10 @@ walk:
 		}
 		// 和当前节点精准匹配上了
 		if word == prefix {
-			return rn
+			return rn, params
 		}
 		// 走到这里意味着 len(word) <= len(prefix) && word != prefix
-		return nil
+		return nil, nil
 	}
 }
 

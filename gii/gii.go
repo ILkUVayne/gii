@@ -7,8 +7,12 @@ import (
 	"sync"
 )
 
+const defaultMultipartMemory = 32 << 20
+
 type Engine struct {
 	*RouterGroup
+
+	MaxMultipartMemory int64
 
 	pool sync.Pool
 
@@ -26,7 +30,8 @@ func New() *Engine {
 			root:     true,
 			Handlers: nil,
 		},
-		trees: make(methodTrees, 0, 9),
+		trees:              make(methodTrees, 0, 9),
+		MaxMultipartMemory: defaultMultipartMemory,
 	}
 	engine.RouterGroup.engine = engine
 	engine.pool.New = func() any {
@@ -42,7 +47,7 @@ func Default() *Engine {
 }
 
 func (e *Engine) allocateContext() *Context {
-	return &Context{index: -1}
+	return &Context{index: -1, engine: e}
 }
 
 func (e *Engine) Use(handlers ...HandlerFunc) GRoutes {
@@ -55,7 +60,7 @@ func (e *Engine) addRouter(method string, absolutePath string, handlers Handlers
 	// 获取请求方法对应的radix树
 	tree := e.getMethodTree(method)
 	// 判断路由是否存在
-	if tree.Search(absolutePath, static) {
+	if exist, _ := tree.Search(absolutePath, static); exist {
 		log.Fatalf("router %s is exisit", key)
 	}
 	tree.Insert(absolutePath, handlers)
@@ -92,10 +97,12 @@ func (e *Engine) httpHandle(c *Context) {
 	// 获取请求方法对应的radix树
 	tree := e.getMethodTree(c.Method)
 	// 判断路由是否存在
-	if !tree.Search(c.Path, param) {
+	exist, params := tree.Search(c.Path, param)
+	if !exist {
 		c.String(http.StatusNotFound, "method not found path: %s\n", key)
 		return
 	}
+	c.params = params
 	// 绑定handles到context
 	c.Handles = tree.GetHandles(c.Path)
 	// 执行处理函数

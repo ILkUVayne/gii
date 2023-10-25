@@ -3,22 +3,27 @@ package controller
 import (
 	"gii/demo/model"
 	"gii/gii"
-	"gii/glog"
 	"net/http"
 )
 
 func AddUser(c *gii.Context) {
 	engine := model.Engine()
+	name, addr := c.PostForm("name"), c.PostForm("addr")
+	if name == "" {
+		Xml(c, []string{}, "name is empty", http.StatusBadRequest)
+		return
+	}
+	if addr == "" {
+		Json(c, []string{}, "addr is empty", http.StatusBadRequest)
+		return
+	}
 	_, err := engine.NewSession().Insert(&model.User{
-		Name: "LY",
-		Addr: "xxx市xxx区25号",
+		Name: name,
+		Addr: addr,
 	})
 	if err != nil {
-		glog.Error(err)
+		Json(c, []string{}, "server error", http.StatusInternalServerError)
+		return
 	}
-	c.JSON(http.StatusOK, gii.H{
-		"data": []string{},
-		"code": http.StatusOK,
-		"msg":  "",
-	})
+	Json(c, []string{}, "", http.StatusOK)
 }
