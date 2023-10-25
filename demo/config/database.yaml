@@ -1,2 +1,8 @@
-driver: mysql
-source: root:root@tcp(127.0.0.1:3306)/gii
+mysql:
+  driver: mysql
+  user_name: root
+  password: root
+  protocol: tcp
+  ip: 127.0.0.1
+  port: 3306
+  db_name: gii
