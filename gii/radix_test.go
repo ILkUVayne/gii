@@ -12,6 +12,7 @@ func reXML(c *Context) {
 		"message": "操作成功",
 	})
 }
+
 func reJson(c *Context) {
 	c.JSON(http.StatusMultipleChoices, H{
 		"code":    200,
@@ -39,13 +40,13 @@ func TestRadix_Insert(t *testing.T) {
 	root.Insert("/api/user", getHandles())
 	root.Insert("/api/users", getHandles())
 	root.Insert("/api/book", getHandles())
-	if !root.Search("/api/user", static) {
+	if ok, _ := root.Search("/api/user", static); !ok {
 		t.Errorf("%s cannot be insert into redix", "/api/user")
 	}
-	if !root.Search("/api/users", static) {
+	if ok, _ := root.Search("/api/users", static); !ok {
 		t.Errorf("%s cannot be insert into redix", "/api/users")
 	}
-	if !root.Search("/api/book", static) {
+	if ok, _ := root.Search("/api/book", static); !ok {
 		t.Errorf("%s cannot be insert into redix", "/api/book")
 	}
 }
@@ -59,25 +60,25 @@ func TestRadix_Del(t *testing.T) {
 	root.Insert("/api/", getHandles())
 	root.Insert("/api/:id", getHandles())
 	root.Insert("/:api", getHandles())
-	if !root.Search("/api/user", static) {
+	if ok, _ := root.Search("/api/user", static); !ok {
 		t.Errorf("%s cannot be insert into redix", "/api/user")
 	}
-	if !root.Search("/api/users", static) {
+	if ok, _ := root.Search("/api/users", static); !ok {
 		t.Errorf("%s cannot be insert into redix", "/api/users")
 	}
-	if !root.Search("/api/userx", static) {
+	if ok, _ := root.Search("/api/userx", static); !ok {
 		t.Errorf("%s cannot be insert into redix", "/api/userx")
 	}
-	if !root.Search("/api/book", static) {
+	if ok, _ := root.Search("/api/book", static); !ok {
 		t.Errorf("%s cannot be insert into redix", "/api/book")
 	}
-	if !root.Search("/api/", static) {
+	if ok, _ := root.Search("/api/", static); !ok {
 		t.Errorf("%s cannot be insert into redix", "/api/")
 	}
-	if !root.Search("/api/:id", static) {
+	if ok, _ := root.Search("/api/:id", static); !ok {
 		t.Errorf("%s cannot be insert into redix", "/api/:id")
 	}
-	if !root.Search("/:api", static) {
+	if ok, _ := root.Search("/:api", static); !ok {
 		t.Errorf("%s cannot be insert into redix", "/:api")
 	}
 	if !root.Del("/api/userx") {
@@ -92,16 +93,16 @@ func TestRadix_Del(t *testing.T) {
 	if !root.Del("/:api") {
 		t.Errorf("%s cannot be delete", "/:api")
 	}
-	if root.Search("/api/", static) {
+	if ok, _ := root.Search("/api/", static); ok {
 		t.Errorf("%s can be search into redix", "/api/")
 	}
-	if root.Search("/api/userx", static) {
+	if ok, _ := root.Search("/api/userx", static); ok {
 		t.Errorf("%s can be search into redix", "/api/userx")
 	}
-	if root.Search("/api/:id", static) {
+	if ok, _ := root.Search("/api/:id", static); ok {
 		t.Errorf("%s can be search into redix", "/api/:id")
 	}
-	if root.Search("/:api", static) {
+	if ok, _ := root.Search("/:api", static); ok {
 		t.Errorf("%s can be search into redix", "/:api")
 	}
 }
