@@ -1,9 +1,10 @@
 package main
 
 import (
+	_ "github.com/go-sql-driver/mysql"
+
 	"gii/demo/config"
 	"gii/glog"
-	_ "github.com/go-sql-driver/mysql"
 )
 
 func main() {
