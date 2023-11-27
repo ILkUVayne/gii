@@ -20,6 +20,8 @@ func init() {
 	generators[UPDATE] = _update
 	generators[DELETE] = _delete
 	generators[COUNT] = _count
+	generators[ALTER] = _alter
+	generators[COMMENT] = _comment
 }
 
 func genBindStr(num int) string {
@@ -101,4 +103,13 @@ func _delete(vars ...interface{}) (string, []interface{}) {
 func _count(vars ...interface{}) (string, []interface{}) {
 	// SELECT COUNT(*) FROM table_name
 	return _select(vars[0], []string{"count(*)"})
+}
+
+func _alter(vars ...interface{}) (string, []interface{}) {
+	return vars[0].(string), nil
+}
+
+func _comment(vars ...interface{}) (string, []interface{}) {
+	// comment "ss"
+	return fmt.Sprintf("COMMENT '%s'", vars[0]), nil
 }

@@ -1,8 +1,17 @@
 package dialect
 
 import (
-	"gii/glog"
 	"reflect"
+
+	"gii/glog"
+)
+
+type AlterType int
+
+const (
+	Add AlterType = iota
+	Modify
+	Drop
 )
 
 var dialectMaps = map[string]Dialect{}
@@ -11,6 +20,7 @@ type Dialect interface {
 	DataTypeOf(typ reflect.Value) string
 	TagOf(p reflect.StructField) map[string]interface{}
 	TableExistSql(tableName string) (string, []interface{})
+	AlterSql(tableName string, args ...interface{}) (string, []interface{})
 }
 
 func init() {

@@ -1,6 +1,8 @@
 package clause
 
-import "strings"
+import (
+	"strings"
+)
 
 type Type int
 
@@ -14,6 +16,8 @@ const (
 	UPDATE
 	DELETE
 	COUNT
+	ALTER
+	COMMENT
 )
 
 type Clause struct {

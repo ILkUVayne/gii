@@ -1,14 +1,14 @@
 package gii
 
-import "net/http"
-
-var (
-	anyMethods = []string{
-		http.MethodGet, http.MethodPost, http.MethodPut, http.MethodPatch,
-		http.MethodHead, http.MethodOptions, http.MethodDelete, http.MethodConnect,
-		http.MethodTrace,
-	}
+import (
+	"net/http"
 )
+
+var anyMethods = []string{
+	http.MethodGet, http.MethodPost, http.MethodPut, http.MethodPatch,
+	http.MethodHead, http.MethodOptions, http.MethodDelete, http.MethodConnect,
+	http.MethodTrace,
+}
 
 type RouterGroup struct {
 	Handlers HandlersChain
