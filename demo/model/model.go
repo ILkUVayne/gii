@@ -8,10 +8,6 @@ import (
 	"os"
 )
 
-type ICheckTable interface {
-	CheckTableExist()
-}
-
 type config struct {
 	Mysql struct {
 		Driver   string `yaml:"driver"`
