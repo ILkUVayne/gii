@@ -2,10 +2,13 @@ package session
 
 import (
 	"fmt"
-	"gii/glog"
-	"gii/orm/schema"
 	"reflect"
 	"strings"
+
+	"gii/glog"
+	"gii/orm/clause"
+	"gii/orm/dialect"
+	"gii/orm/schema"
 )
 
 func (s *Session) RefTable() *schema.Schema {
@@ -54,4 +57,14 @@ func (s *Session) HasTable() bool {
 	var tmp string
 	_ = res.Scan(&tmp)
 	return tmp == s.RefTable().UnderscoreName
+}
+
+func (s *Session) Alter(t dialect.AlterType, args ...interface{}) {
+	sql, _ := s.dialect.AlterSql(s.RefTable().UnderscoreName, append([]interface{}{t}, args...)...)
+	if sql == "" {
+		return
+	}
+	s.clause.Set(clause.ALTER, sql)
+	sql, vars := s.clause.Build(clause.ALTER, clause.COMMENT)
+	s.Raw(sql, vars...).Exec()
 }

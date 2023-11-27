@@ -1,11 +1,12 @@
 package session
 
 import (
+	"reflect"
+
 	"gii/glog"
 	"gii/orm/clause"
 	"gii/orm/schema"
 	"gii/tools"
-	"reflect"
 )
 
 func (s *Session) Set(typ clause.Type, vars ...interface{}) {
@@ -27,6 +28,11 @@ func (s *Session) OrderBy(desc string) *Session {
 	return s
 }
 
+func (s *Session) Comment(desc string) *Session {
+	s.clause.Set(clause.COMMENT, desc)
+	return s
+}
+
 func (s *Session) Insert(dest ...interface{}) (int64, error) {
 	var table *schema.Schema
 	var fieldNames []string
@@ -38,7 +44,7 @@ func (s *Session) Insert(dest ...interface{}) (int64, error) {
 		}
 		s.CallMethod(BeforeInsert, value)
 		recordValues = append(recordValues, table.RecordValues(value))
-		//s.CallMethod(AfterInsert, value)
+		// s.CallMethod(AfterInsert, value)
 	}
 	s.clause.Set(clause.INSERT, table.UnderscoreName, fieldNames)
 	s.clause.Set(clause.VALUES, recordValues...)

@@ -2,6 +2,7 @@ package dialect
 
 import (
 	"fmt"
+	"gii/glog"
 	"reflect"
 	"strings"
 	"time"
@@ -77,4 +78,22 @@ func (m *mysql) TagOf(p reflect.StructField) map[string]interface{} {
 
 func (m *mysql) TableExistSql(tableName string) (string, []interface{}) {
 	return fmt.Sprintf("show TABLES LIKE '%s'", tableName), nil
+}
+
+func (m *mysql) AlterSql(tableName string, args ...interface{}) (string, []interface{}) {
+	t, args := args[0], args[1:]
+	t, ok := t.(AlterType)
+	if !ok {
+		glog.Error("alter type not fount")
+	}
+	args = append([]interface{}{tableName}, args...)
+	switch t {
+	case Add:
+		return fmt.Sprintf("ALTER TABLE `%s` ADD %s %s", args...), nil
+	case Modify:
+		return fmt.Sprintf("ALTER TABLE `%s` MODIFY COLUMN %s %s", args...), nil
+	case Drop:
+		return fmt.Sprintf("ALTER TABLE `%s` DROP COLUMN %s", args...), nil
+	}
+	return "", nil
 }
