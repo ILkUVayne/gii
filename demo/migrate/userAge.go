@@ -3,9 +3,13 @@ package migrate
 import (
 	"gii/demo/model"
 	"gii/orm/dialect"
+	"gii/orm/session"
 )
 
-type UserAge struct {
+type UserAge struct{}
+
+func init() {
+	session.MigrateMappings["userAge"] = &UserAge{}
 }
 
 func (u *UserAge) GetRecordName() string {
