@@ -1,16 +1,17 @@
 package main
 
 import (
-	"gii/demo/migrate"
+	_ "gii/demo/migrate"
 	_ "github.com/go-sql-driver/mysql"
 
 	"gii/demo/config"
+	"gii/demo/model"
 	"gii/glog"
 )
 
 func main() {
 	glog.SetLevel(glog.InfoLevel)
 	// migrate
-	migrate.Migrate()
+	model.Engine().NewSession().Migrate()
 	config.Router().Run("localhost:8000")
 }
