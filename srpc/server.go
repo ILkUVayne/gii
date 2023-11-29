@@ -1,7 +1,6 @@
 package srpc
 
 import (
-	"encoding/json"
 	"fmt"
 	"gii/glog"
 	"gii/srpc/codec"
@@ -13,20 +12,6 @@ import (
 )
 
 var invalidRequest = struct{}{}
-
-type OptionNumber int
-
-const GobNumber OptionNumber = 0x3bef5a
-
-type Option struct {
-	TypeNumber OptionNumber
-	CodecType  codec.Type
-}
-
-var DefaultOption = &Option{
-	TypeNumber: GobNumber,
-	CodecType:  codec.GobType,
-}
 
 type Request struct {
 	header       *codec.Header
@@ -56,19 +41,16 @@ func (s *Server) Accept(lis net.Listener) {
 
 func (s *Server) ServerConn(conn io.ReadWriteCloser) {
 	defer func() { _ = conn.Close() }()
-	// 解析option,获取codec类型
-	var opt Option
-	if err := json.NewDecoder(conn).Decode(&opt); err != nil {
+	// 解析protocol
+	var p [2]byte
+	_, err := conn.Read(p[0:])
+	if err != nil {
 		glog.Error("rpc server: decode option error: ", err)
 	}
-	var fn codec.NewCodecFunc
-	switch opt.TypeNumber {
-	case GobNumber:
-		if fn = codec.TypeMaps[opt.CodecType]; fn == nil {
-			glog.Error("rpc server: invalid codec")
-		}
-	default:
-		glog.Error("rpc server: invalid TypeNumber")
+
+	fn := codec.TypeMaps[CheckEnc(p[0:])]
+	if fn == nil {
+		glog.Error("rpc server: invalid codec")
 	}
 	s.ServerCodec(fn(conn))
 }
