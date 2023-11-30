@@ -18,6 +18,8 @@ const (
 	JsonEnc = 1 << 5
 )
 
+type RpcProto []byte
+
 func CheckEnc(b []byte) (t codec.Type) {
 	_ = b[0]
 	switch {
@@ -31,6 +33,6 @@ func CheckEnc(b []byte) (t codec.Type) {
 	return
 }
 
-func DefaultProtocol() []byte {
-	return []byte{16, 0}
+func DefaultProtocol() RpcProto {
+	return RpcProto{16, 0}
 }

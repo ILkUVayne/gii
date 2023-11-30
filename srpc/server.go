@@ -42,7 +42,6 @@ func (s *Server) Accept(lis net.Listener) {
 func (s *Server) ServerConn(conn io.ReadWriteCloser) {
 	defer func() {
 		if err := conn.Close(); err != nil {
-			log.Println(err)
 			glog.Error("rpc: conn close error: ", err)
 		}
 	}()
@@ -61,6 +60,11 @@ func (s *Server) ServerConn(conn io.ReadWriteCloser) {
 }
 
 func (s *Server) ServerCodec(c codec.Codec) {
+	defer func() {
+		if err := c.Close(); err != nil {
+			glog.Error(err)
+		}
+	}()
 	sending := new(sync.Mutex)
 	wg := new(sync.WaitGroup)
 	// 读取数据
@@ -78,10 +82,6 @@ func (s *Server) ServerCodec(c codec.Codec) {
 		go s.handleRequest(c, req, wg, sending)
 	}
 	wg.Wait()
-	err := c.Close()
-	if err != nil {
-		glog.Error(err)
-	}
 }
 
 func (s *Server) readRequestHeader(c codec.Codec) (*codec.Header, error) {
