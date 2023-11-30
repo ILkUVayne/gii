@@ -139,11 +139,13 @@ func (c *Client) send(call *Call) {
 	}
 }
 
+// Call 同步阻塞调用
 func (c *Client) Call(serviceMethod string, args, reply interface{}) error {
 	call := <-c.Go(serviceMethod, args, reply, make(chan *Call, 1)).Done
 	return call.Error
 }
 
+// Go 异步调用
 func (c *Client) Go(serviceMethod string, args, reply interface{}, done chan *Call) *Call {
 	call := new(Call)
 	call.ServerMethod = serviceMethod
@@ -159,6 +161,28 @@ func (c *Client) Go(serviceMethod string, args, reply interface{}, done chan *Ca
 	call.Done = done
 	c.send(call)
 	return call
+}
+
+// DefaultDial 默认gob编码
+func DefaultDial(network, addr string) (client *Client) {
+	return Dial(network, addr, DefaultProtocol())
+}
+
+// Dial 创建client实例
+// rpcProto是协议类型
+func Dial(network, addr string, rpcProto *RpcProto) (client *Client) {
+	conn, err := net.Dial(network, addr)
+	if err != nil {
+		glog.Error("rpc client: Dial error: ", err)
+	}
+	defer func() {
+		if client == nil {
+			if err = conn.Close(); err != nil {
+				glog.Error("rpc client: Dial close error: ", err)
+			}
+		}
+	}()
+	return NewClient(conn, rpcProto)
 }
 
 func NewClient(conn net.Conn, rpcProto *RpcProto) *Client {
@@ -180,25 +204,7 @@ func newClientCodec(c codec.Codec, rpcProto *RpcProto) *Client {
 		proto:   rpcProto,
 		pending: make(map[uint64]*Call),
 	}
+	// 创建协程，接受响应
 	go client.receive()
 	return client
-}
-
-func DefaultDial(network, addr string) (client *Client) {
-	return Dial(network, addr, DefaultProtocol())
-}
-
-func Dial(network, addr string, rpcProto *RpcProto) (client *Client) {
-	conn, err := net.Dial(network, addr)
-	if err != nil {
-		glog.Error("rpc client: Dial error: ", err)
-	}
-	defer func() {
-		if client == nil {
-			if err = conn.Close(); err != nil {
-				glog.Error("rpc client: Dial close error: ", err)
-			}
-		}
-	}()
-	return NewClient(conn, rpcProto)
 }
