@@ -166,7 +166,7 @@ func NewClient(conn net.Conn, rpcProto *RpcProto) *Client {
 	if fn == nil {
 		glog.Error("rpc server: invalid codec")
 	}
-	_, err := conn.Write(*rpcProto)
+	_, err := conn.Write(rpcProto[0:])
 	if err != nil {
 		glog.Error("rpc client: send protocol error: ", err)
 	}
@@ -185,8 +185,7 @@ func newClientCodec(c codec.Codec, rpcProto *RpcProto) *Client {
 }
 
 func DefaultDial(network, addr string) (client *Client) {
-	rpcProto := DefaultProtocol()
-	return Dial(network, addr, &rpcProto)
+	return Dial(network, addr, DefaultProtocol())
 }
 
 func Dial(network, addr string, rpcProto *RpcProto) (client *Client) {

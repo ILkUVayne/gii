@@ -40,19 +40,15 @@ func (s *Server) Accept(lis net.Listener) {
 }
 
 func (s *Server) ServerConn(conn io.ReadWriteCloser) {
-	defer func() {
-		if err := conn.Close(); err != nil {
-			glog.Error("rpc: conn close error: ", err)
-		}
-	}()
+	defer func() { _ = conn.Close() }()
 	// 解析protocol
-	var p [2]byte
+	var p RpcProto
 	_, err := conn.Read(p[0:])
 	if err != nil {
 		glog.Error("rpc server: decode option error: ", err)
 	}
 
-	fn := codec.TypeMaps[CheckEnc(p[0:])]
+	fn := codec.TypeMaps[CheckEnc(p)]
 	if fn == nil {
 		glog.Error("rpc server: invalid codec")
 	}
@@ -60,11 +56,7 @@ func (s *Server) ServerConn(conn io.ReadWriteCloser) {
 }
 
 func (s *Server) ServerCodec(c codec.Codec) {
-	defer func() {
-		if err := c.Close(); err != nil {
-			glog.Error(err)
-		}
-	}()
+	defer func() { _ = c.Close() }()
 	sending := new(sync.Mutex)
 	wg := new(sync.WaitGroup)
 	// 读取数据

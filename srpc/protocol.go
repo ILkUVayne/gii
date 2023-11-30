@@ -1,6 +1,7 @@
 package srpc
 
 import (
+	"encoding/binary"
 	"gii/glog"
 	"gii/srpc/codec"
 )
@@ -14,18 +15,26 @@ import (
 //
 // todo:后面的bit先预留
 const (
-	GobEnc  = 1 << 4
-	JsonEnc = 1 << 5
+	GobEnc  = 1 << 12
+	JsonEnc = 1 << 13
 )
 
-type RpcProto []byte
+type Option func(s *rpcProto)
 
-func CheckEnc(b []byte) (t codec.Type) {
-	_ = b[0]
+type rpcProto struct {
+	encType codec.Type
+	// todo 其他协议预留
+}
+
+type RpcProto [2]byte
+
+func CheckEnc(b RpcProto) (t codec.Type) {
+	_ = b[1]
+	mask := binary.BigEndian.Uint16(b[0:])
 	switch {
-	case uint8(b[0])&GobEnc == GobEnc:
+	case mask&GobEnc == GobEnc:
 		t = codec.GobType
-	case uint8(b[0])&JsonEnc == JsonEnc:
+	case mask&JsonEnc == JsonEnc:
 		t = codec.JsonType
 	default:
 		glog.Error("rpc: invalid enc type")
@@ -33,6 +42,31 @@ func CheckEnc(b []byte) (t codec.Type) {
 	return
 }
 
-func DefaultProtocol() RpcProto {
-	return RpcProto{16, 0}
+func DefaultProtocol() *RpcProto {
+	return ParseProtocol(EncType(codec.GobType))
+}
+
+func ParseProtocol(opts ...Option) *RpcProto {
+	var mask uint16
+	rp := new(rpcProto)
+	for _, v := range opts {
+		v(rp)
+	}
+	// 编解码
+	switch rp.encType {
+	case codec.GobType:
+		mask |= GobEnc
+	case codec.JsonType:
+		mask |= JsonEnc
+	}
+
+	var Rp RpcProto
+	binary.BigEndian.PutUint16(Rp[0:], mask)
+	return &Rp
+}
+
+func EncType(t codec.Type) Option {
+	return func(s *rpcProto) {
+		s.encType = t
+	}
 }
