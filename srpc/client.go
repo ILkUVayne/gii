@@ -9,30 +9,33 @@ import (
 	"sync"
 )
 
+// Call 一次请求RPC的信息
 type Call struct {
-	Seq          uint64
-	ServerMethod string
+	Seq          uint64 // 唯一请求编号
+	ServerMethod string // 服务方法 "T.method"
 	Args         interface{}
 	reply        interface{}
 	Error        error
 	Done         chan *Call
 }
 
+// Client 客户端结构信息
 type Client struct {
-	codec    codec.Codec
-	seq      uint64
-	header   codec.Header
-	proto    *RpcProto
+	codec    codec.Codec  // 编解码器
+	seq      uint64       // 唯一请求编号，每次请求依次递增
+	header   codec.Header // header信息
+	proto    *RpcProto    // 协议
 	closing  bool
 	shutdown bool
 	sending  sync.Mutex
 	mu       sync.Mutex
-	pending  map[uint64]*Call
+	pending  map[uint64]*Call // 待处理的call请求
 }
 
 var ErrShutdown = errors.New("connection is shut down")
 var _ io.Closer = (*Client)(nil)
 
+// 表示这次RPC调用完成
 func (c *Call) done() {
 	c.Done <- c
 }
