@@ -6,7 +6,6 @@ import (
 	"gii/glog"
 	"gii/orm/clause"
 	"gii/orm/schema"
-	"gii/tools"
 )
 
 func (s *Session) Set(typ clause.Type, vars ...interface{}) {
@@ -63,6 +62,11 @@ func (s *Session) All(values interface{}) {
 	s.clause.Set(clause.SELECT, table.UnderscoreName, table.FieldColumns)
 	sql, sqlVar := s.clause.Build(clause.SELECT, clause.WHERE, clause.ORDERBy, clause.LIMIT)
 	rows := s.Raw(sql, sqlVar...).Query()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			glog.Error("orm: get All close err: ", err)
+		}
+	}()
 
 	for rows.Next() {
 		dest := reflect.New(destType).Elem()
@@ -77,7 +81,6 @@ func (s *Session) All(values interface{}) {
 		s.CallMethod(AfterQuery, dest.Addr().Interface())
 		destSlice.Set(reflect.Append(destSlice, dest))
 	}
-	tools.Close(rows)
 }
 
 func (s *Session) First(value interface{}) {
