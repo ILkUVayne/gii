@@ -40,7 +40,12 @@ func (s *Server) Accept(lis net.Listener) {
 }
 
 func (s *Server) ServerConn(conn io.ReadWriteCloser) {
-	defer func() { _ = conn.Close() }()
+	defer func() {
+		if err := conn.Close(); err != nil {
+			log.Println(err)
+			glog.Error("rpc: conn close error: ", err)
+		}
+	}()
 	// 解析protocol
 	var p [2]byte
 	_, err := conn.Read(p[0:])

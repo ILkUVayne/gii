@@ -20,11 +20,15 @@ var (
 	mux      sync.Mutex
 )
 
+// Error ErrorF 会阻止defer执行
+// ErrorP ErrorPf 不会会阻止defer执行，但需要手动return
 var (
-	Error  = errorLog.Fatal
-	ErrorF = errorLog.Fatalf
-	Info   = infoLog.Println
-	InfoF  = infoLog.Printf
+	Error   = errorLog.Fatal
+	ErrorF  = errorLog.Fatalf
+	ErrorP  = errorLog.Println
+	ErrorPf = errorLog.Printf
+	Info    = infoLog.Println
+	InfoF   = infoLog.Printf
 )
 
 func SetLevel(level int) {
