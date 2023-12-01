@@ -12,7 +12,7 @@ func getMsg(msg string, code int) string {
 	return msg
 }
 
-func Json(c *gii.Context, data interface{}, msg string, code int) {
+func Json(c *gii.Context, data any, msg string, code int) {
 	c.JSON(code, gii.H{
 		"data": data,
 		"msg":  getMsg(msg, code),
@@ -20,7 +20,7 @@ func Json(c *gii.Context, data interface{}, msg string, code int) {
 	})
 }
 
-func Xml(c *gii.Context, data interface{}, msg string, code int) {
+func Xml(c *gii.Context, data any, msg string, code int) {
 	c.XML(code, gii.H{
 		"data": data,
 		"msg":  getMsg(msg, code),

@@ -16,7 +16,7 @@ type MigrateLog struct {
 	CreateAt int64  `orm:"column:create_at" json:"create_at"`
 }
 
-var MigrateMappings = map[string]interface{}{}
+var MigrateMappings = map[string]any{}
 
 func (s *Session) Migrate() {
 	for _, m := range MigrateMappings {

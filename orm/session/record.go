@@ -8,7 +8,7 @@ import (
 	"gii/orm/schema"
 )
 
-func (s *Session) Set(typ clause.Type, vars ...interface{}) {
+func (s *Session) Set(typ clause.Type, vars ...any) {
 	s.clause.Set(typ, vars...)
 }
 
@@ -17,8 +17,8 @@ func (s *Session) Limit(num int) *Session {
 	return s
 }
 
-func (s *Session) Where(desc string, args ...interface{}) *Session {
-	s.clause.Set(clause.WHERE, append([]interface{}{desc}, args...)...)
+func (s *Session) Where(desc string, args ...any) *Session {
+	s.clause.Set(clause.WHERE, append([]any{desc}, args...)...)
 	return s
 }
 
@@ -32,10 +32,10 @@ func (s *Session) Comment(desc string) *Session {
 	return s
 }
 
-func (s *Session) Insert(dest ...interface{}) (int64, error) {
+func (s *Session) Insert(dest ...any) (int64, error) {
 	var table *schema.Schema
 	var fieldNames []string
-	recordValues := make([]interface{}, 0)
+	recordValues := make([]any, 0)
 	for _, value := range dest {
 		if table == nil {
 			table = s.Model(value).RefTable()
@@ -53,7 +53,7 @@ func (s *Session) Insert(dest ...interface{}) (int64, error) {
 	return res.RowsAffected()
 }
 
-func (s *Session) All(values interface{}) {
+func (s *Session) All(values any) {
 	s.CallMethod(BeforeQuery, nil)
 	destSlice := reflect.Indirect(reflect.ValueOf(values))
 	destType := destSlice.Type().Elem()
@@ -70,7 +70,7 @@ func (s *Session) All(values interface{}) {
 
 	for rows.Next() {
 		dest := reflect.New(destType).Elem()
-		var values []interface{}
+		var values []any
 
 		for _, name := range table.FieldNames {
 			values = append(values, dest.FieldByName(name).Addr().Interface())
@@ -83,15 +83,15 @@ func (s *Session) All(values interface{}) {
 	}
 }
 
-func (s *Session) First(value interface{}) {
+func (s *Session) First(value any) {
 	s.Limit(1).All(value)
 }
 
-func (s *Session) Update(kv ...interface{}) int64 {
+func (s *Session) Update(kv ...any) int64 {
 	s.CallMethod(BeforeUpdate, nil)
-	UpdateMap, ok := kv[0].(map[string]interface{})
+	UpdateMap, ok := kv[0].(map[string]any)
 	if !ok {
-		UpdateMap = make(map[string]interface{})
+		UpdateMap = make(map[string]any)
 		for i := 0; i < len(kv); i += 2 {
 			UpdateMap[kv[i].(string)] = kv[i+1]
 		}

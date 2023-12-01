@@ -37,8 +37,8 @@ func (m *mysql) DataTypeOf(typ reflect.Value) string {
 
 // TagOf 解析tag标签
 
-func (m *mysql) TagOf(p reflect.StructField) map[string]interface{} {
-	res := make(map[string]interface{})
+func (m *mysql) TagOf(p reflect.StructField) map[string]any {
+	res := make(map[string]any)
 	tag := ""
 	if v, ok := p.Tag.Lookup("orm"); ok {
 		tagArr := strings.Split(v, ";")
@@ -76,17 +76,17 @@ func (m *mysql) TagOf(p reflect.StructField) map[string]interface{} {
 	return nil
 }
 
-func (m *mysql) TableExistSql(tableName string) (string, []interface{}) {
+func (m *mysql) TableExistSql(tableName string) (string, []any) {
 	return fmt.Sprintf("show TABLES LIKE '%s'", tableName), nil
 }
 
-func (m *mysql) AlterSql(tableName string, args ...interface{}) (string, []interface{}) {
+func (m *mysql) AlterSql(tableName string, args ...any) (string, []any) {
 	t, args := args[0], args[1:]
 	t, ok := t.(AlterType)
 	if !ok {
 		glog.Error("alter type not fount")
 	}
-	args = append([]interface{}{tableName}, args...)
+	args = append([]any{tableName}, args...)
 	switch t {
 	case Add:
 		return fmt.Sprintf("ALTER TABLE `%s` ADD %s %s", args...), nil

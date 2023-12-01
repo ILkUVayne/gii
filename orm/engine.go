@@ -12,7 +12,7 @@ type Engine struct {
 	dialect dialect.Dialect
 }
 
-type TxFunc func(*session.Session) (interface{}, error)
+type TxFunc func(*session.Session) (any, error)
 
 func NewEngine(driver, source string) (e *Engine) {
 	// connect db
@@ -43,7 +43,7 @@ func (e *Engine) NewSession() *session.Session {
 	return session.NewSession(e.db, e.dialect)
 }
 
-func (e *Engine) Transaction(f TxFunc) (result interface{}, err error) {
+func (e *Engine) Transaction(f TxFunc) (result any, err error) {
 	s := e.NewSession()
 	if err = s.Begin(); err != nil {
 		return nil, err

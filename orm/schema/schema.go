@@ -24,7 +24,7 @@ type Field struct {
 }
 
 type Schema struct {
-	Model          interface{}
+	Model          any
 	Name           string
 	UnderscoreName string
 	Fields         []*Field
@@ -42,9 +42,9 @@ func (s *Schema) GetField(name string) *Field {
 	return field
 }
 
-func (s *Schema) RecordValues(dest interface{}) []interface{} {
+func (s *Schema) RecordValues(dest any) []any {
 	destValue := reflect.Indirect(reflect.ValueOf(dest))
-	var fieldValues []interface{}
+	var fieldValues []any
 
 	for _, v := range s.Fields {
 		if v.IsPk && destValue.FieldByName(v.Name).IsZero() {
@@ -55,7 +55,7 @@ func (s *Schema) RecordValues(dest interface{}) []interface{} {
 	return fieldValues
 }
 
-func (s *Schema) SaveFields(dest interface{}) []string {
+func (s *Schema) SaveFields(dest any) []string {
 	destValue := reflect.Indirect(reflect.ValueOf(dest))
 	var fieldNames []string
 
@@ -68,7 +68,7 @@ func (s *Schema) SaveFields(dest interface{}) []string {
 	return fieldNames
 }
 
-func Parse(dest interface{}, dialect dialect.Dialect) *Schema {
+func Parse(dest any, dialect dialect.Dialect) *Schema {
 	modelType := reflect.Indirect(reflect.ValueOf(dest)).Type()
 	schema := &Schema{
 		Model:          dest,
