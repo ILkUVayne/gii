@@ -13,6 +13,7 @@ import (
 	"sync/atomic"
 )
 
+// 服务方法
 type methodType struct {
 	method    reflect.Method
 	argType   reflect.Type
@@ -20,10 +21,12 @@ type methodType struct {
 	numCalls  uint64
 }
 
+// NumCalls 服务方法调用次数
 func (t *methodType) NumCalls() uint64 {
 	return atomic.LoadUint64(&t.numCalls)
 }
 
+// NewArg 创建第一个参数实例
 func (t *methodType) NewArg() reflect.Value {
 	if t.argType.Kind() == reflect.Ptr {
 		return reflect.New(t.argType.Elem())
@@ -31,6 +34,7 @@ func (t *methodType) NewArg() reflect.Value {
 	return reflect.New(t.argType).Elem()
 }
 
+// NewReply 创建第二个参数实例
 func (t *methodType) NewReply() reflect.Value {
 	reply := reflect.New(t.replyType.Elem())
 	switch t.replyType.Elem().Kind() {
@@ -42,6 +46,7 @@ func (t *methodType) NewReply() reflect.Value {
 	return reply
 }
 
+// 服务
 type service struct {
 	name    string
 	typ     reflect.Type
@@ -49,10 +54,12 @@ type service struct {
 	methods map[string]*methodType
 }
 
+// 判断参数是否被导出
 func isExportedOrBuiltinType(t reflect.Type) bool {
 	return ast.IsExported(t.Name()) || t.PkgPath() == ""
 }
 
+// 创建新的服务实例
 func newService(rcvr any) *service {
 	s := new(service)
 	s.rcvr = reflect.ValueOf(rcvr)
@@ -66,6 +73,7 @@ func newService(rcvr any) *service {
 	return s
 }
 
+// 注册服务对应的方法
 func (s *service) registerMethod() {
 	numMethod := s.typ.NumMethod()
 	for i := 0; i < numMethod; i++ {
@@ -94,6 +102,7 @@ func (s *service) registerMethod() {
 	}
 }
 
+// 服务方法调用
 func (s *service) call(mt *methodType, arg, reply reflect.Value) error {
 	// update call num
 	atomic.AddUint64(&mt.numCalls, 1)
@@ -114,8 +123,9 @@ type Request struct {
 	svc        *service
 }
 
+// Server RPC Server
 type Server struct {
-	ServerMap sync.Map
+	ServerMap sync.Map // 注册的服务表
 }
 
 func NewServer() *Server {
@@ -128,6 +138,7 @@ func Accept(lis net.Listener) { DefaultServer.Accept(lis) }
 
 func Register(rcvr any) { DefaultServer.Register(rcvr) }
 
+// Register 注册服务
 func (s *Server) Register(rcvr any) {
 	ss := newService(rcvr)
 	if _, ok := s.ServerMap.LoadOrStore(ss.name, ss); ok {
@@ -135,6 +146,7 @@ func (s *Server) Register(rcvr any) {
 	}
 }
 
+// 查询服务
 func (s *Server) findService(serviceMethod string) (svc *service, mt *methodType) {
 	// serviceMethod = "T.method"
 	idx := strings.LastIndex(serviceMethod, ".")
