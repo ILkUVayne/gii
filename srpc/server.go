@@ -166,6 +166,7 @@ func (s *Server) findService(serviceMethod string) (svc *service, mt *methodType
 	return
 }
 
+// Accept 等待rpc请求
 func (s *Server) Accept(lis net.Listener) {
 	for {
 		conn, err := lis.Accept()
@@ -176,6 +177,7 @@ func (s *Server) Accept(lis net.Listener) {
 	}
 }
 
+// ServerConn 校验协议
 func (s *Server) ServerConn(conn io.ReadWriteCloser) {
 	defer func() { _ = conn.Close() }()
 	// 解析protocol
@@ -192,6 +194,7 @@ func (s *Server) ServerConn(conn io.ReadWriteCloser) {
 	s.ServerCodec(fn(conn))
 }
 
+// ServerCodec 处理rpc请求
 func (s *Server) ServerCodec(c codec.Codec) {
 	defer func() { _ = c.Close() }()
 	sending := new(sync.Mutex)
@@ -213,6 +216,7 @@ func (s *Server) ServerCodec(c codec.Codec) {
 	wg.Wait()
 }
 
+// 获取header信息
 func (s *Server) readRequestHeader(c codec.Codec) (*codec.Header, error) {
 	var h codec.Header
 	if err := c.ReadHeader(&h); err != nil {
@@ -224,6 +228,7 @@ func (s *Server) readRequestHeader(c codec.Codec) (*codec.Header, error) {
 	return &h, nil
 }
 
+// 获取请求信息
 func (s *Server) readRequest(c codec.Codec) (*Request, error) {
 	h, err := s.readRequestHeader(c)
 	if err != nil {
@@ -246,6 +251,7 @@ func (s *Server) readRequest(c codec.Codec) (*Request, error) {
 	return req, nil
 }
 
+// 发送响应
 func (s *Server) sendResponse(c codec.Codec, header *codec.Header, body any, sending *sync.Mutex) {
 	sending.Lock()
 	defer sending.Unlock()
@@ -254,6 +260,7 @@ func (s *Server) sendResponse(c codec.Codec, header *codec.Header, body any, sen
 	}
 }
 
+// 处理请求（调用请求的rpc方法）
 func (s *Server) handleRequest(c codec.Codec, req *Request, wg *sync.WaitGroup, sending *sync.Mutex) {
 	defer wg.Done()
 	glog.Info(req.header, req.arg)
