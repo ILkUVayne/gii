@@ -13,8 +13,8 @@ import (
 type Call struct {
 	Seq          uint64 // 唯一请求编号
 	ServerMethod string // 服务方法 "T.method"
-	Args         interface{}
-	reply        interface{}
+	Args         any
+	reply        any
 	Error        error
 	Done         chan *Call
 }
@@ -143,13 +143,13 @@ func (c *Client) send(call *Call) {
 }
 
 // Call 同步阻塞调用
-func (c *Client) Call(serviceMethod string, args, reply interface{}) error {
+func (c *Client) Call(serviceMethod string, args, reply any) error {
 	call := <-c.Go(serviceMethod, args, reply, make(chan *Call, 1)).Done
 	return call.Error
 }
 
 // Go 异步调用
-func (c *Client) Go(serviceMethod string, args, reply interface{}, done chan *Call) *Call {
+func (c *Client) Go(serviceMethod string, args, reply any, done chan *Call) *Call {
 	call := new(Call)
 	call.ServerMethod = serviceMethod
 	call.Args = args
