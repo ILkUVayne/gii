@@ -173,6 +173,7 @@ func (s *Server) Accept(lis net.Listener) {
 		if err != nil {
 			glog.Error("rpc server: accept err:", err)
 		}
+		// 创建协程，并发处理rpc请求
 		go s.ServerConn(conn)
 	}
 }
@@ -186,7 +187,7 @@ func (s *Server) ServerConn(conn io.ReadWriteCloser) {
 	if err != nil {
 		glog.Error("rpc server: decode option error: ", err)
 	}
-
+	// 获取编解码器
 	fn := codec.TypeMaps[CheckEnc(p)]
 	if fn == nil {
 		glog.Error("rpc server: invalid codec")
