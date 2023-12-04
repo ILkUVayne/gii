@@ -1,6 +1,7 @@
 package srpc
 
 import (
+	"fmt"
 	"gii/glog"
 	"gii/srpc/codec"
 	"go/ast"
@@ -11,6 +12,7 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
+	"time"
 )
 
 // 服务方法
@@ -188,15 +190,17 @@ func (s *Server) ServerConn(conn io.ReadWriteCloser) {
 		glog.Error("rpc server: decode option error: ", err)
 	}
 	// 获取编解码器
-	fn := codec.TypeMaps[CheckEnc(p)]
+	proto := GetRProto(&p)
+
+	fn := codec.TypeMaps[proto.deProto.EncType]
 	if fn == nil {
 		glog.Error("rpc server: invalid codec")
 	}
-	s.ServerCodec(fn(conn))
+	s.ServerCodec(fn(conn), proto)
 }
 
 // ServerCodec 处理rpc请求
-func (s *Server) ServerCodec(c codec.Codec) {
+func (s *Server) ServerCodec(c codec.Codec, proto *RProto) {
 	defer func() { _ = c.Close() }()
 	sending := new(sync.Mutex)
 	wg := new(sync.WaitGroup)
@@ -207,12 +211,12 @@ func (s *Server) ServerCodec(c codec.Codec) {
 			if req == nil {
 				break
 			}
-			req.header.Error = err
+			req.header.Error = err.Error()
 			s.sendResponse(c, req.header, invalidRequest, sending)
 			continue
 		}
 		wg.Add(1)
-		go s.handleRequest(c, req, wg, sending)
+		go s.handleRequest(c, req, wg, sending, proto.deProto.HandleTimeout)
 	}
 	wg.Wait()
 }
@@ -262,13 +266,32 @@ func (s *Server) sendResponse(c codec.Codec, header *codec.Header, body any, sen
 }
 
 // 处理请求（调用请求的rpc方法）
-func (s *Server) handleRequest(c codec.Codec, req *Request, wg *sync.WaitGroup, sending *sync.Mutex) {
+func (s *Server) handleRequest(c codec.Codec, req *Request, wg *sync.WaitGroup, sending *sync.Mutex, timeout time.Duration) {
 	defer wg.Done()
+	called := make(chan struct{})
+	sent := make(chan struct{})
 	glog.Info(req.header, req.arg)
-	err := req.svc.call(req.mt, req.arg, req.reply)
-	if err != nil {
-		req.header.Error = err
-		s.sendResponse(c, req.header, invalidRequest, sending)
+	go func() {
+		err := req.svc.call(req.mt, req.arg, req.reply)
+		called <- struct{}{}
+		if err != nil {
+			req.header.Error = err.Error()
+			s.sendResponse(c, req.header, invalidRequest, sending)
+			sent <- struct{}{}
+		}
+		s.sendResponse(c, req.header, req.reply.Interface(), sending)
+		sent <- struct{}{}
+	}()
+
+	if timeout == 0 {
+		<-called
+		<-sent
 	}
-	s.sendResponse(c, req.header, req.reply.Interface(), sending)
+	select {
+	case <-time.After(timeout):
+		req.header.Error = fmt.Sprintf("rpc server: request handle timeout: expect within %s", timeout)
+		s.sendResponse(c, req.header, invalidRequest, sending)
+	case <-called:
+		<-sent
+	}
 }

@@ -1,11 +1,13 @@
 package codec
 
-import "io"
+import (
+	"io"
+)
 
 type Header struct {
 	ServerMethod string // "T.method"
 	Seq          uint64
-	Error        error
+	Error        string
 }
 
 type Codec interface {

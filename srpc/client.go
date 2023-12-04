@@ -1,12 +1,15 @@
 package srpc
 
 import (
+	"context"
 	"errors"
+	"fmt"
 	"gii/glog"
 	"gii/srpc/codec"
 	"io"
 	"net"
 	"sync"
+	"time"
 )
 
 // Call 一次请求RPC的信息
@@ -24,7 +27,7 @@ type Client struct {
 	codec    codec.Codec  // 编解码器
 	seq      uint64       // 唯一请求编号，每次请求依次递增
 	header   codec.Header // header信息
-	proto    *RpcProto    // 协议
+	proto    *RProto      // 协议
 	closing  bool
 	shutdown bool
 	sending  sync.Mutex
@@ -103,8 +106,8 @@ func (c *Client) receive() {
 		switch {
 		case call == nil:
 			err = c.codec.ReadBody(nil)
-		case h.Error != nil:
-			call.Error = h.Error
+		case h.Error != "":
+			call.Error = fmt.Errorf(h.Error)
 			err = c.codec.ReadBody(nil)
 			call.done()
 		default:
@@ -142,6 +145,21 @@ func (c *Client) send(call *Call) {
 	}
 }
 
+// CallTimeout example
+// ctx, _ := context.WithTimeout(context.Background(), time.Second)
+// var reply int
+// err := client.CallTimeout(ctx, "Foo.Sum", &Args{1, 2}, &reply)
+func (c *Client) CallTimeout(ctx context.Context, serviceMethod string, args, reply any) error {
+	call := c.Go(serviceMethod, args, reply, make(chan *Call, 1))
+	select {
+	case <-ctx.Done():
+		c.removeCall(call.Seq)
+		return errors.New("rpc client: call failed: " + ctx.Err().Error())
+	case call := <-call.Done:
+		return call.Error
+	}
+}
+
 // Call 同步阻塞调用
 func (c *Client) Call(serviceMethod string, args, reply any) error {
 	call := <-c.Go(serviceMethod, args, reply, make(chan *Call, 1)).Done
@@ -166,17 +184,41 @@ func (c *Client) Go(serviceMethod string, args, reply any, done chan *Call) *Cal
 	return call
 }
 
-// DefaultDial 默认gob编码
+// DefaultDial 默认gob编码,默认10s超时
 func DefaultDial(network, addr string) (client *Client) {
 	return Dial(network, addr, DefaultProtocol())
 }
 
 // Dial 创建client实例
 // rpcProto是协议类型
-func Dial(network, addr string, rpcProto *RpcProto) (client *Client) {
-	conn, err := net.Dial(network, addr)
+func Dial(network, addr string, proto *RProto) (client *Client) {
+	// 判断是否需要设置连接超时
+	var conn net.Conn
+	var err error
+	if proto.deProto.ConnectTimeout > 0 {
+		conn, err = net.DialTimeout(network, addr, proto.deProto.ConnectTimeout)
+	} else {
+		conn, err = net.Dial(network, addr)
+	}
+
 	if err != nil {
 		glog.Error("rpc client: Dial error: ", err)
+	}
+
+	ch := make(chan *Client)
+	go func() {
+		ch <- NewClient(conn, proto)
+	}()
+
+	if proto.deProto.ConnectTimeout == 0 {
+		return <-ch
+	}
+
+	select {
+	case <-time.After(proto.deProto.ConnectTimeout):
+		glog.ErrorF("rpc client: connect timeout: expect within %s", proto.deProto.ConnectTimeout)
+	case client = <-ch:
+		return
 	}
 	defer func() {
 		if client == nil {
@@ -185,26 +227,26 @@ func Dial(network, addr string, rpcProto *RpcProto) (client *Client) {
 			}
 		}
 	}()
-	return NewClient(conn, rpcProto)
+	return
 }
 
-func NewClient(conn net.Conn, rpcProto *RpcProto) *Client {
-	fn := codec.TypeMaps[CheckEnc(*rpcProto)]
+func NewClient(conn net.Conn, proto *RProto) *Client {
+	fn := codec.TypeMaps[proto.deProto.EncType]
 	if fn == nil {
 		glog.Error("rpc server: invalid codec")
 	}
-	_, err := conn.Write(rpcProto[0:])
+	_, err := conn.Write(proto.proto[0:])
 	if err != nil {
 		glog.Error("rpc client: send protocol error: ", err)
 	}
-	return newClientCodec(fn(conn), rpcProto)
+	return newClientCodec(fn(conn), proto)
 }
 
-func newClientCodec(c codec.Codec, rpcProto *RpcProto) *Client {
+func newClientCodec(c codec.Codec, proto *RProto) *Client {
 	client := &Client{
 		seq:     1,
 		codec:   c,
-		proto:   rpcProto,
+		proto:   proto,
 		pending: make(map[uint64]*Call),
 	}
 	// 创建协程，接受响应
