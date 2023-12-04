@@ -268,25 +268,33 @@ func (s *Server) sendResponse(c codec.Codec, header *codec.Header, body any, sen
 // 处理请求（调用请求的rpc方法）
 func (s *Server) handleRequest(c codec.Codec, req *Request, wg *sync.WaitGroup, sending *sync.Mutex, timeout time.Duration) {
 	defer wg.Done()
+	// 超时处理
+	// 处理过程拆分为 called 和 sent 两个部分
+	// called 表示执行rpc方法的过程
+	// sent 表示响应结果
 	called := make(chan struct{})
 	sent := make(chan struct{})
 	glog.Info(req.header, req.arg)
 	go func() {
 		err := req.svc.call(req.mt, req.arg, req.reply)
+		// 成功调用rpc方法，写入called
 		called <- struct{}{}
+		// 调用结果有错误，响应错误
 		if err != nil {
 			req.header.Error = err.Error()
 			s.sendResponse(c, req.header, invalidRequest, sending)
 			sent <- struct{}{}
 		}
+		// 正常调用后，响应结果
 		s.sendResponse(c, req.header, req.reply.Interface(), sending)
 		sent <- struct{}{}
 	}()
-
+	// 不进行超时处理
 	if timeout == 0 {
 		<-called
 		<-sent
 	}
+	// time.After() 先于 called 接收到消息，说明处理已经超时，called 和 sent 都将被阻塞,直接响应超时信息
 	select {
 	case <-time.After(timeout):
 		req.header.Error = fmt.Sprintf("rpc server: request handle timeout: expect within %s", timeout)

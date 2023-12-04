@@ -145,10 +145,13 @@ func (c *Client) send(call *Call) {
 	}
 }
 
-// CallTimeout example
+// CallTimeout 客户端调用超时处理
+// 使用上下文
+//
+// example
 // ctx, _ := context.WithTimeout(context.Background(), time.Second)
 // var reply int
-// err := client.CallTimeout(ctx, "Foo.Sum", &Args{1, 2}, &reply)
+// err := client.CallTimeout(ctx, "T.Method", &Args{1, 2}, &reply)
 func (c *Client) CallTimeout(ctx context.Context, serviceMethod string, args, reply any) error {
 	call := c.Go(serviceMethod, args, reply, make(chan *Call, 1))
 	select {
@@ -184,7 +187,7 @@ func (c *Client) Go(serviceMethod string, args, reply any, done chan *Call) *Cal
 	return call
 }
 
-// DefaultDial 默认gob编码,默认10s超时
+// DefaultDial 默认gob编码,默认启用超时处理，默认10s超时
 func DefaultDial(network, addr string) (client *Client) {
 	return Dial(network, addr, DefaultProtocol())
 }
@@ -204,16 +207,18 @@ func Dial(network, addr string, proto *RProto) (client *Client) {
 	if err != nil {
 		glog.Error("rpc client: Dial error: ", err)
 	}
-
+	// 使用chan+select实现超时处理
 	ch := make(chan *Client)
+	// 异步创建client实例
 	go func() {
 		ch <- NewClient(conn, proto)
 	}()
-
+	// 未设置超时时间，直接返回
 	if proto.deProto.ConnectTimeout == 0 {
+		// 创建client成功后直接返回
 		return <-ch
 	}
-
+	// 超时处理，time.After() 先于 ch 接收到消息，说明处理已经超时
 	select {
 	case <-time.After(proto.deProto.ConnectTimeout):
 		glog.ErrorF("rpc client: connect timeout: expect within %s", proto.deProto.ConnectTimeout)
