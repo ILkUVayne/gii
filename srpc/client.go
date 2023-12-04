@@ -190,7 +190,7 @@ func DefaultDial(network, addr string) (client *Client) {
 }
 
 // Dial 创建client实例
-// rpcProto是协议类型
+// proto是协议类型
 func Dial(network, addr string, proto *RProto) (client *Client) {
 	// 判断是否需要设置连接超时
 	var conn net.Conn
