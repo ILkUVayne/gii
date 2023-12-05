@@ -1,6 +1,7 @@
 package srpc
 
 import (
+	"bufio"
 	"context"
 	"errors"
 	"fmt"
@@ -8,6 +9,7 @@ import (
 	"gii/srpc/codec"
 	"io"
 	"net"
+	"net/http"
 	"sync"
 	"time"
 )
@@ -195,6 +197,15 @@ func DefaultDial(network, addr string) (client *Client) {
 // Dial 创建client实例
 // proto是协议类型
 func Dial(network, addr string, proto *RProto) (client *Client) {
+	return dialTimeout(NewClient, network, addr, proto)
+}
+
+// DialHttp 创建http client实例
+func DialHttp(network, addr string, proto *RProto) (client *Client) {
+	return dialTimeout(NewHttpClient, network, addr, proto)
+}
+
+func dialTimeout(fn NewClientFunc, network, addr string, proto *RProto) (client *Client) {
 	// 判断是否需要设置连接超时
 	var conn net.Conn
 	var err error
@@ -211,7 +222,7 @@ func Dial(network, addr string, proto *RProto) (client *Client) {
 	ch := make(chan *Client)
 	// 异步创建client实例
 	go func() {
-		ch <- NewClient(conn, proto)
+		ch <- fn(conn, proto)
 	}()
 	// 未设置超时时间，直接返回
 	if proto.deProto.ConnectTimeout == 0 {
@@ -233,6 +244,20 @@ func Dial(network, addr string, proto *RProto) (client *Client) {
 		}
 	}()
 	return
+}
+
+type NewClientFunc func(net.Conn, *RProto) *Client
+
+func NewHttpClient(conn net.Conn, proto *RProto) *Client {
+	_, _ = io.WriteString(conn, fmt.Sprintf("CONNECT %s HTTP/1.0\n\n", defaultRPCPath))
+	res, err := http.ReadResponse(bufio.NewReader(conn), &http.Request{Method: http.MethodConnect})
+	if err == nil && res.Status == connected {
+		return NewClient(conn, proto)
+	}
+	if err == nil {
+		glog.Error("unexpected HTTP response: " + res.Status)
+	}
+	return nil
 }
 
 func NewClient(conn net.Conn, proto *RProto) *Client {

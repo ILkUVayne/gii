@@ -8,11 +8,18 @@ import (
 	"io"
 	"log"
 	"net"
+	"net/http"
 	"reflect"
 	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
+)
+
+const (
+	connected        = "200 Connected to Gee RPC"
+	defaultRPCPath   = "/_srpc_"
+	defaultDebugPath = "/debug/geerpc"
 )
 
 // 服务方法
@@ -302,4 +309,27 @@ func (s *Server) handleRequest(c codec.Codec, req *Request, wg *sync.WaitGroup, 
 	case <-called:
 		<-sent
 	}
+}
+
+func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodConnect {
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		_, _ = io.WriteString(w, "405 must CONNECT\n")
+		return
+	}
+	conn, _, err := w.(http.Hijacker).Hijack()
+	if err != nil {
+		glog.Error("rpc hijacking ", r.RemoteAddr, ": ", err.Error())
+	}
+	_, _ = io.WriteString(conn, "HTTP/1.0 "+connected+"\n\n")
+	s.ServerConn(conn)
+}
+
+func (s *Server) HandleHTTP() {
+	http.Handle(defaultRPCPath, s)
+}
+
+func HandleHTTP() {
+	DefaultServer.HandleHTTP()
 }
