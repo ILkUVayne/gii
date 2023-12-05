@@ -10,3 +10,4 @@ web framework written in Go
 - Middleware
 - context
 - simple orm
+- simple rpc
