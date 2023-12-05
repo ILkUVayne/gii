@@ -17,14 +17,14 @@ type Session struct {
 	refTable *schema.Schema
 	clause   clause.Clause
 	sql      strings.Builder
-	sqlVars  []interface{}
+	sqlVars  []any
 	mux      sync.Mutex
 }
 
 type CommonDB interface {
-	Query(query string, args ...interface{}) (*sql.Rows, error)
-	QueryRow(query string, args ...interface{}) *sql.Row
-	Exec(query string, args ...interface{}) (sql.Result, error)
+	Query(query string, args ...any) (*sql.Rows, error)
+	QueryRow(query string, args ...any) *sql.Row
+	Exec(query string, args ...any) (sql.Result, error)
 }
 
 var _ CommonDB = (*sql.DB)(nil)
@@ -52,7 +52,7 @@ func (s *Session) Db() CommonDB {
 	return s.db
 }
 
-func (s *Session) Raw(sql string, sqlVars ...interface{}) *Session {
+func (s *Session) Raw(sql string, sqlVars ...any) *Session {
 	s.sql.WriteString(sql)
 	s.sql.WriteString(" ")
 	s.sqlVars = append(s.sqlVars, sqlVars...)

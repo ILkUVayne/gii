@@ -16,7 +16,7 @@ func TestClause_Set(t *testing.T) {
 	if sql != "SELECT id,name FROM user WHERE name = ? ORDER BY id desc LIMIT ?" {
 		t.Error("sql build failed")
 	}
-	if !reflect.DeepEqual(sqlvars, []interface{}{"ly", 4}) {
+	if !reflect.DeepEqual(sqlvars, []any{"ly", 4}) {
 		t.Fatal("failed to build SQLVars")
 	}
 }

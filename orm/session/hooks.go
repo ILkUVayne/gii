@@ -67,7 +67,7 @@ func init() {
 	hooks[AfterInsert] = _afterInsert
 }
 
-func (s *Session) CallMethod(method string, v interface{}) {
+func (s *Session) CallMethod(method string, v any) {
 	hook, ok := hooks[method]
 	if !ok {
 		return

@@ -18,7 +18,7 @@ func (s *Session) RefTable() *schema.Schema {
 	return s.refTable
 }
 
-func (s *Session) Model(m interface{}) *Session {
+func (s *Session) Model(m any) *Session {
 	if s.refTable == nil || reflect.TypeOf(m) != reflect.TypeOf(s.refTable.Model) {
 		s.refTable = schema.Parse(m, s.dialect)
 	}
@@ -59,8 +59,8 @@ func (s *Session) HasTable() bool {
 	return tmp == s.RefTable().UnderscoreName
 }
 
-func (s *Session) Alter(t dialect.AlterType, args ...interface{}) {
-	sql, _ := s.dialect.AlterSql(s.RefTable().UnderscoreName, append([]interface{}{t}, args...)...)
+func (s *Session) Alter(t dialect.AlterType, args ...any) {
+	sql, _ := s.dialect.AlterSql(s.RefTable().UnderscoreName, append([]any{t}, args...)...)
 	if sql == "" {
 		return
 	}

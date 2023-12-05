@@ -1,16 +1,8 @@
 package tools
 
 import (
-	"gii/glog"
-	"io"
 	"unicode"
 )
-
-func Close(c io.Closer) {
-	if err := c.Close(); err != nil {
-		glog.Error(err)
-	}
-}
 
 // 驼峰单词转下划线单词
 

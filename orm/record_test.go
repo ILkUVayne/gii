@@ -88,7 +88,7 @@ func TestSession_Update(t *testing.T) {
 	if i != 1 {
 		t.Errorf("update line failed %d", i)
 	}
-	s.Where("id  = ?", 3).Update(map[string]interface{}{
+	s.Where("id  = ?", 3).Update(map[string]any{
 		"addr": "qqqq路1号",
 		"no":   333,
 	})

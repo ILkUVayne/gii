@@ -32,7 +32,7 @@ func transactionRollback(t *testing.T) {
 	s.Model(&Users{}).CreateTable()
 	s.Model(&Address{}).DropTable()
 	s.Model(&Address{}).CreateTable()
-	_, err := engine.Transaction(func(s *session.Session) (result interface{}, err error) {
+	_, err := engine.Transaction(func(s *session.Session) (result any, err error) {
 		// mysql DDL语句执行时会隐式执行commit,导致rollback失败
 		//s.Model(&Users{}).CreateTable()
 		_, err = s.Insert(&Users{"Tom", 18})
@@ -51,7 +51,7 @@ func transactionCommit(t *testing.T) {
 	s.Model(&Users{}).CreateTable()
 	s.Model(&Address{}).DropTable()
 	s.Model(&Address{}).CreateTable()
-	_, err := engine.Transaction(func(s *session.Session) (result interface{}, err error) {
+	_, err := engine.Transaction(func(s *session.Session) (result any, err error) {
 		_, err = s.Insert(&Users{"Tom", 18})
 		_, err = s.Insert(&Address{"Jek", 19})
 		return
