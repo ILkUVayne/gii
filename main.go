@@ -5,13 +5,13 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 
 	"gii/demo/config"
-	"gii/demo/model"
 	"gii/glog"
 )
 
 func main() {
 	glog.SetLevel(glog.InfoLevel)
 	// migrate
-	model.Engine().NewSession().Migrate()
+	// Need to connect to database,see database.yaml
+	//model.Engine().NewSession().Migrate()
 	config.Router().Run("localhost:8000")
 }

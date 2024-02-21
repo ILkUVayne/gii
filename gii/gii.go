@@ -1,6 +1,7 @@
 package gii
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -64,7 +65,7 @@ func (e *Engine) addRouter(method string, absolutePath string, handlers Handlers
 		log.Fatalf("router %s is exisit", key)
 	}
 	tree.Insert(absolutePath, handlers)
-	log.Printf("Router %s", key)
+	fmt.Printf("[GIN-debug] %s\n", key)
 }
 
 func (e *Engine) getMethodTree(method string) *Radix {

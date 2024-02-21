@@ -4,8 +4,7 @@ import (
 	"unicode"
 )
 
-// 驼峰单词转下划线单词
-
+// CamelCaseToUnderscore 驼峰单词转下划线单词
 func CamelCaseToUnderscore(s string) string {
 	var output []rune
 	for i, r := range s {
