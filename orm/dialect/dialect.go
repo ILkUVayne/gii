@@ -23,10 +23,6 @@ type Dialect interface {
 	AlterSql(tableName string, args ...any) (string, []any)
 }
 
-func init() {
-	RegisterDialect("mysql", &mysql{})
-}
-
 func RegisterDialect(name string, dialect Dialect) {
 	if _, ok := dialectMaps[name]; ok {
 		return
