@@ -8,6 +8,10 @@ import (
 	"time"
 )
 
+func init() {
+	RegisterDialect("mysql", &mysql{})
+}
+
 type mysql struct{}
 
 var _ Dialect = (*mysql)(nil)
