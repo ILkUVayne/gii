@@ -1,8 +1,8 @@
 package orm
 
 import (
-	"gii/glog"
 	"gii/orm/session"
+	"github.com/ILkUVayne/utlis-go/v2/ulog"
 	_ "github.com/go-sql-driver/mysql"
 	"testing"
 )
@@ -15,35 +15,35 @@ type UserAddr struct {
 }
 
 func (a *UserAddr) BeforeInsert(s *session.Session) error {
-	glog.Info("before inert", a)
+	ulog.Info("before inert", a)
 	a.No = 888
 	return nil
 }
 
 func (a *UserAddr) AfterInsert(s *session.Session) error {
-	glog.Info("after inert", a)
+	ulog.Info("after inert", a)
 	return nil
 }
 
 func (a *UserAddr) BeforeQuery(s *session.Session) error {
-	glog.Info("before query", a)
+	ulog.Info("before query", a)
 	return nil
 }
 
 func (a *UserAddr) AfterQuery(s *session.Session) error {
-	glog.Info("after query", a)
+	ulog.Info("after query", a)
 	a.IdCard = "************"
 	return nil
 }
 
 func (a *UserAddr) BeforeUpdate(s *session.Session) error {
-	glog.Info("before update", a)
+	ulog.Info("before update", a)
 	a.Addr = "修改啊啊啊"
 	return nil
 }
 
 func (a *UserAddr) AfterUpdate(s *session.Session) error {
-	glog.Info("after update", a)
+	ulog.Info("after update", a)
 	return nil
 }
 

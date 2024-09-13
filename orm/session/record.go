@@ -1,9 +1,9 @@
 package session
 
 import (
+	"github.com/ILkUVayne/utlis-go/v2/ulog"
 	"reflect"
 
-	"gii/glog"
 	"gii/orm/clause"
 	"gii/orm/schema"
 )
@@ -64,7 +64,7 @@ func (s *Session) All(values any) {
 	rows := s.Raw(sql, sqlVar...).Query()
 	defer func() {
 		if err := rows.Close(); err != nil {
-			glog.Error("orm: get All close err: ", err)
+			ulog.Error("orm: get All close err: ", err)
 		}
 	}()
 
@@ -76,7 +76,7 @@ func (s *Session) All(values any) {
 			values = append(values, dest.FieldByName(name).Addr().Interface())
 		}
 		if err := rows.Scan(values...); err != nil {
-			glog.Error(err)
+			ulog.Error(err)
 		}
 		s.CallMethod(AfterQuery, dest.Addr().Interface())
 		destSlice.Set(reflect.Append(destSlice, dest))
@@ -101,7 +101,7 @@ func (s *Session) Update(kv ...any) int64 {
 	res := s.Raw(sql, sqlVar...).Exec()
 	affected, err := res.RowsAffected()
 	if err != nil {
-		glog.Error(err)
+		ulog.Error(err)
 	}
 	s.CallMethod(AfterUpdate, nil)
 	return affected
@@ -114,7 +114,7 @@ func (s *Session) Delete() int64 {
 	res := s.Raw(sql, sqlVar...).Exec()
 	affected, err := res.RowsAffected()
 	if err != nil {
-		glog.Error(err)
+		ulog.Error(err)
 	}
 	s.CallMethod(AfterDelete, nil)
 	return affected
@@ -126,7 +126,7 @@ func (s *Session) Count() int64 {
 	rows := s.Raw(sql, sqlVar...).QueryRow()
 	var count int64
 	if err := rows.Scan(&count); err != nil {
-		glog.Error(err)
+		ulog.Error(err)
 	}
 	return count
 }

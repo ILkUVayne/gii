@@ -2,14 +2,14 @@ package main
 
 import (
 	_ "gii/demo/migrate"
+	"github.com/ILkUVayne/utlis-go/v2/ulog"
 	_ "github.com/go-sql-driver/mysql"
 
 	"gii/demo/config"
-	"gii/glog"
 )
 
 func main() {
-	glog.SetLevel(glog.InfoLevel)
+	ulog.SetLevel(ulog.InfoLevel)
 	// migrate
 	// Need to connect to database,see database.yaml
 	//model.Engine().NewSession().Migrate()

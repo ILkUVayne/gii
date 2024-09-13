@@ -3,8 +3,8 @@ package gii
 import (
 	"errors"
 	"fmt"
-	"gii/glog"
 	"gii/render"
+	"github.com/ILkUVayne/utlis-go/v2/ulog"
 	"math"
 	"net/http"
 	"net/url"
@@ -154,7 +154,7 @@ func (c *Context) initPostFormCache() {
 	c.formCache = make(url.Values)
 	if err := req.ParseMultipartForm(c.engine.MaxMultipartMemory); err != nil {
 		if !errors.Is(err, http.ErrNotMultipart) {
-			glog.ErrorF("error on call ParseMultipartForm : %v", err)
+			ulog.ErrorF("error on call ParseMultipartForm : %v", err)
 		}
 	}
 	c.formCache = req.PostForm

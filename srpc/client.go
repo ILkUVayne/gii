@@ -5,8 +5,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"gii/glog"
 	"gii/srpc/codec"
+	"github.com/ILkUVayne/utlis-go/v2/ulog"
 	"io"
 	"net"
 	"net/http"
@@ -181,7 +181,7 @@ func (c *Client) Go(serviceMethod string, args, reply any, done chan *Call) *Cal
 		done = make(chan *Call, 10)
 	} else {
 		if cap(done) == 0 {
-			glog.Error("rpc client: done channel is unbuffered")
+			ulog.Error("rpc client: done channel is unbuffered")
 		}
 	}
 	call.Done = done
@@ -216,7 +216,7 @@ func dialTimeout(fn NewClientFunc, network, addr string, proto *RProto) (client 
 	}
 
 	if err != nil {
-		glog.Error("rpc client: Dial error: ", err)
+		ulog.Error("rpc client: Dial error: ", err)
 	}
 	// 使用chan+select实现超时处理
 	ch := make(chan *Client)
@@ -232,14 +232,14 @@ func dialTimeout(fn NewClientFunc, network, addr string, proto *RProto) (client 
 	// 超时处理，time.After() 先于 ch 接收到消息，说明处理已经超时
 	select {
 	case <-time.After(proto.deProto.ConnectTimeout):
-		glog.ErrorF("rpc client: connect timeout: expect within %s", proto.deProto.ConnectTimeout)
+		ulog.ErrorF("rpc client: connect timeout: expect within %s", proto.deProto.ConnectTimeout)
 	case client = <-ch:
 		return
 	}
 	defer func() {
 		if client == nil {
 			if err = conn.Close(); err != nil {
-				glog.Error("rpc client: Dial close error: ", err)
+				ulog.Error("rpc client: Dial close error: ", err)
 			}
 		}
 	}()
@@ -255,7 +255,7 @@ func NewHttpClient(conn net.Conn, proto *RProto) *Client {
 		return NewClient(conn, proto)
 	}
 	if err == nil {
-		glog.Error("unexpected HTTP response: " + res.Status)
+		ulog.Error("unexpected HTTP response: " + res.Status)
 	}
 	return nil
 }
@@ -263,11 +263,11 @@ func NewHttpClient(conn net.Conn, proto *RProto) *Client {
 func NewClient(conn net.Conn, proto *RProto) *Client {
 	fn := codec.TypeMaps[proto.deProto.EncType]
 	if fn == nil {
-		glog.Error("rpc server: invalid codec")
+		ulog.Error("rpc server: invalid codec")
 	}
 	_, err := conn.Write(proto.proto[0:])
 	if err != nil {
-		glog.Error("rpc client: send protocol error: ", err)
+		ulog.Error("rpc client: send protocol error: ", err)
 	}
 	return newClientCodec(fn(conn), proto)
 }

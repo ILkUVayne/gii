@@ -1,7 +1,7 @@
 package session
 
 import (
-	"gii/glog"
+	"github.com/ILkUVayne/utlis-go/v2/ulog"
 	"time"
 )
 
@@ -51,6 +51,6 @@ func (s *Session) afterMigrateAfter(m Migrater) {
 		CreateAt: time.Now().Unix(),
 	})
 	if err != nil {
-		glog.Error(err)
+		ulog.Error(err)
 	}
 }

@@ -1,9 +1,9 @@
 package schema
 
 import (
-	"gii/glog"
 	"gii/orm/dialect"
-	"gii/tools"
+	"github.com/ILkUVayne/utlis-go/v2/str"
+	"github.com/ILkUVayne/utlis-go/v2/ulog"
 	"go/ast"
 	"reflect"
 )
@@ -37,7 +37,7 @@ type Schema struct {
 func (s *Schema) GetField(name string) *Field {
 	field, ok := s.fieldMap[name]
 	if !ok {
-		glog.ErrorF("field %s not exist", name)
+		ulog.ErrorF("field %s not exist", name)
 	}
 	return field
 }
@@ -73,7 +73,7 @@ func Parse(dest any, dialect dialect.Dialect) *Schema {
 	schema := &Schema{
 		Model:          dest,
 		Name:           modelType.Name(),
-		UnderscoreName: tools.CamelCaseToUnderscore(modelType.Name()),
+		UnderscoreName: str.CamelCaseToUnderscore(modelType.Name()),
 		fieldMap:       make(map[string]*Field),
 	}
 	for i := 0; i < modelType.NumField(); i++ {
@@ -101,7 +101,7 @@ func Parse(dest any, dialect dialect.Dialect) *Schema {
 
 			schema.Fields = append(schema.Fields, field)
 			schema.FieldNames = append(schema.FieldNames, field.Name)
-			schema.FieldColumns = append(schema.FieldColumns, tools.CamelCaseToUnderscore(field.Column))
+			schema.FieldColumns = append(schema.FieldColumns, str.CamelCaseToUnderscore(field.Column))
 			schema.fieldMap[p.Name] = field
 		}
 	}

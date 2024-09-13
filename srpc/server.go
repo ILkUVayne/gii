@@ -1,12 +1,12 @@
 package srpc
 
 import (
+	"errors"
 	"fmt"
-	"gii/glog"
 	"gii/srpc/codec"
+	"github.com/ILkUVayne/utlis-go/v2/ulog"
 	"go/ast"
 	"io"
-	"log"
 	"net"
 	"net/http"
 	"reflect"
@@ -74,7 +74,7 @@ func newService(rcvr any) *service {
 	s.rcvr = reflect.ValueOf(rcvr)
 	s.name = reflect.Indirect(s.rcvr).Type().Name()
 	if !ast.IsExported(s.name) {
-		glog.ErrorF("rpc server: method %s is not exported", s.name)
+		ulog.ErrorF("rpc server: method %s is not exported", s.name)
 	}
 	s.typ = reflect.TypeOf(rcvr)
 	s.methods = make(map[string]*methodType)
@@ -107,7 +107,7 @@ func (s *service) registerMethod() {
 			argType:   argType,
 			replyType: replyType,
 		}
-		glog.InfoF("rpc server: register server %s.%s", s.name, method.Name)
+		ulog.InfoF("rpc server: register server %s.%s", s.name, method.Name)
 	}
 }
 
@@ -151,7 +151,7 @@ func Register(rcvr any) { DefaultServer.Register(rcvr) }
 func (s *Server) Register(rcvr any) {
 	ss := newService(rcvr)
 	if _, ok := s.ServerMap.LoadOrStore(ss.name, ss); ok {
-		glog.ErrorF("rpc server: can not register service:%s", ss.name)
+		ulog.ErrorF("rpc server: can not register service:%s", ss.name)
 	}
 }
 
@@ -160,17 +160,17 @@ func (s *Server) findService(serviceMethod string) (svc *service, mt *methodType
 	// serviceMethod = "T.method"
 	idx := strings.LastIndex(serviceMethod, ".")
 	if idx == 0 {
-		glog.ErrorF("rpc server: cannot find service %s", serviceMethod)
+		ulog.ErrorF("rpc server: cannot find service %s", serviceMethod)
 	}
 	serviceName, methodName := serviceMethod[:idx], serviceMethod[idx+1:]
 	svcc, ok := s.ServerMap.Load(serviceName)
 	if !ok {
-		glog.ErrorF("rpc server: cannot get service by name %s", serviceName)
+		ulog.ErrorF("rpc server: cannot get service by name %s", serviceName)
 	}
 	svc = svcc.(*service)
 	mt = svc.methods[methodName]
 	if mt == nil {
-		glog.ErrorF("rpc server: cannot get methodType by name %s", methodName)
+		ulog.ErrorF("rpc server: cannot get methodType by name %s", methodName)
 	}
 	return
 }
@@ -180,7 +180,7 @@ func (s *Server) Accept(lis net.Listener) {
 	for {
 		conn, err := lis.Accept()
 		if err != nil {
-			glog.Error("rpc server: accept err:", err)
+			ulog.Error("rpc server: accept err:", err)
 		}
 		// 创建协程，并发处理rpc请求
 		go s.ServerConn(conn)
@@ -194,14 +194,14 @@ func (s *Server) ServerConn(conn io.ReadWriteCloser) {
 	var p RpcProto
 	_, err := conn.Read(p[0:])
 	if err != nil {
-		glog.Error("rpc server: decode option error: ", err)
+		ulog.Error("rpc server: decode option error: ", err)
 	}
 	// 获取编解码器
 	proto := GetRProto(&p)
 
 	fn := codec.TypeMaps[proto.deProto.EncType]
 	if fn == nil {
-		glog.Error("rpc server: invalid codec")
+		ulog.Error("rpc server: invalid codec")
 	}
 	s.ServerCodec(fn(conn), proto)
 }
@@ -232,8 +232,8 @@ func (s *Server) ServerCodec(c codec.Codec, proto *RProto) {
 func (s *Server) readRequestHeader(c codec.Codec) (*codec.Header, error) {
 	var h codec.Header
 	if err := c.ReadHeader(&h); err != nil {
-		if err != io.EOF && err != io.ErrUnexpectedEOF {
-			glog.Error("rpc server: read header error: ", err)
+		if err != io.EOF && !errors.Is(err, io.ErrUnexpectedEOF) {
+			ulog.Error("rpc server: read header error: ", err)
 		}
 		return nil, err
 	}
@@ -258,7 +258,7 @@ func (s *Server) readRequest(c codec.Codec) (*Request, error) {
 	}
 
 	if err = c.ReadBody(argInterface); err != nil {
-		log.Println("rpc server: read argv err:", err)
+		ulog.ErrorP("rpc server: read argv err:", err)
 	}
 	return req, nil
 }
@@ -268,7 +268,7 @@ func (s *Server) sendResponse(c codec.Codec, header *codec.Header, body any, sen
 	sending.Lock()
 	defer sending.Unlock()
 	if err := c.Write(header, body); err != nil {
-		glog.Error("rpc server: write error: ", err)
+		ulog.Error("rpc server: write error: ", err)
 	}
 }
 
@@ -281,7 +281,7 @@ func (s *Server) handleRequest(c codec.Codec, req *Request, wg *sync.WaitGroup, 
 	// sent 表示响应结果
 	called := make(chan struct{})
 	sent := make(chan struct{})
-	glog.Info(req.header, req.arg)
+	ulog.Info(req.header, req.arg)
 	go func() {
 		err := req.svc.call(req.mt, req.arg, req.reply)
 		// 成功调用rpc方法，写入called
@@ -320,7 +320,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	conn, _, err := w.(http.Hijacker).Hijack()
 	if err != nil {
-		glog.Error("rpc hijacking ", r.RemoteAddr, ": ", err.Error())
+		ulog.Error("rpc hijacking ", r.RemoteAddr, ": ", err.Error())
 	}
 	_, _ = io.WriteString(conn, "HTTP/1.0 "+connected+"\n\n")
 	s.ServerConn(conn)

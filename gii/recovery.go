@@ -2,7 +2,7 @@ package gii
 
 import (
 	"fmt"
-	"log"
+	"github.com/ILkUVayne/utlis-go/v2/ulog"
 	"net/http"
 	"runtime"
 	"strings"
@@ -13,7 +13,7 @@ func Recovery() HandlerFunc {
 		defer func() {
 			if err := recover(); err != nil {
 				message := fmt.Sprintf("%s", err)
-				log.Printf("%s\n\n", trace(message))
+				ulog.InfoF("%s\n\n", trace(message))
 				ctx.Fail(http.StatusInternalServerError, "Internal Server Error")
 			}
 		}()

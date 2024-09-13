@@ -1,7 +1,7 @@
 package session
 
 import (
-	"gii/glog"
+	"github.com/ILkUVayne/utlis-go/v2/ulog"
 	"reflect"
 )
 
@@ -82,7 +82,7 @@ func (s *Session) CallMethod(method string, v any) {
 	}
 	err := f(s)
 	if err != nil {
-		glog.Error(err)
+		ulog.Error(err)
 	}
 }
 

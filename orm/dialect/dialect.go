@@ -1,9 +1,8 @@
 package dialect
 
 import (
+	"github.com/ILkUVayne/utlis-go/v2/ulog"
 	"reflect"
-
-	"gii/glog"
 )
 
 type AlterType int
@@ -33,7 +32,7 @@ func RegisterDialect(name string, dialect Dialect) {
 func GetDialect(name string) Dialect {
 	dialect, ok := dialectMaps[name]
 	if !ok {
-		glog.ErrorF("%s dialect is not exist", name)
+		ulog.ErrorF("%s dialect is not exist", name)
 	}
 	return dialect
 }
