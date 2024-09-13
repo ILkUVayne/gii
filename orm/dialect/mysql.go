@@ -2,7 +2,7 @@ package dialect
 
 import (
 	"fmt"
-	"gii/glog"
+	"github.com/ILkUVayne/utlis-go/v2/ulog"
 	"reflect"
 	"strings"
 	"time"
@@ -88,7 +88,7 @@ func (m *mysql) AlterSql(tableName string, args ...any) (string, []any) {
 	t, args := args[0], args[1:]
 	t, ok := t.(AlterType)
 	if !ok {
-		glog.Error("alter type not fount")
+		ulog.Error("alter type not fount")
 	}
 	args = append([]any{tableName}, args...)
 	switch t {

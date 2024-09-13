@@ -2,9 +2,9 @@ package orm
 
 import (
 	"database/sql"
-	"gii/glog"
 	"gii/orm/dialect"
 	"gii/orm/session"
+	"github.com/ILkUVayne/utlis-go/v2/ulog"
 )
 
 type Engine struct {
@@ -18,25 +18,25 @@ func NewEngine(driver, source string) (e *Engine) {
 	// connect db
 	db, err := sql.Open(driver, source)
 	if err != nil {
-		glog.Error(err)
+		ulog.Error(err)
 	}
 	// ping db
 	if err = db.Ping(); err != nil {
-		glog.Error(err)
+		ulog.Error(err)
 	}
 	e = &Engine{
 		db:      db,
 		dialect: dialect.GetDialect(driver),
 	}
-	glog.Info("Connect database success")
+	ulog.Info("Connect database success")
 	return
 }
 
 func (e *Engine) Close() {
 	if err := e.db.Close(); err != nil {
-		glog.Error(e)
+		ulog.Error(e)
 	}
-	glog.Info("Close database success")
+	ulog.Info("Close database success")
 }
 
 func (e *Engine) NewSession() *session.Session {

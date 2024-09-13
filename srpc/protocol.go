@@ -2,8 +2,8 @@ package srpc
 
 import (
 	"encoding/binary"
-	"gii/glog"
 	"gii/srpc/codec"
+	"github.com/ILkUVayne/utlis-go/v2/ulog"
 	"time"
 )
 
@@ -55,7 +55,7 @@ func GetRProto(b *RpcProto) *RProto {
 	case b[0]&JsonEnc == JsonEnc:
 		deRProto.EncType = codec.JsonType
 	default:
-		glog.Error("rpc: invalid enc type")
+		ulog.Error("rpc: invalid enc type")
 	}
 	// 获取连接超时时间
 	ctoMask := binary.BigEndian.Uint16(b[1:3])

@@ -2,8 +2,8 @@ package model
 
 import (
 	"fmt"
-	"gii/glog"
 	"gii/orm"
+	"github.com/ILkUVayne/utlis-go/v2/ulog"
 	"gopkg.in/yaml.v3"
 	"os"
 )
@@ -30,11 +30,11 @@ func Engine() *orm.Engine {
 	var conf config
 	f, err := os.ReadFile("./demo/config/database.yaml")
 	if err != nil {
-		glog.Error(err)
+		ulog.Error(err)
 	}
 	err = yaml.Unmarshal(f, &conf)
 	if err != nil {
-		glog.Error(err)
+		ulog.Error(err)
 	}
 
 	engine = orm.NewEngine(conf.Mysql.Driver, fmt.Sprintf(

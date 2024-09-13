@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"gii/glog"
 	"gii/srpc"
+	"github.com/ILkUVayne/utlis-go/v2/ulog"
 	"log"
 	"net"
 	"sync"
@@ -26,7 +26,7 @@ func startServer(addr chan string) {
 	if err != nil {
 		log.Fatal("network error:", err)
 	}
-	glog.Info("start rpc server on", l.Addr())
+	ulog.Info("start rpc server on", l.Addr())
 	addr <- "localhost:1234"
 	srpc.Accept(l)
 }
@@ -48,9 +48,9 @@ func main() {
 			args := fmt.Sprintf("world %d", i)
 			var reply string
 			if err := client.Call("HelloServer.Hello", args, &reply); err != nil {
-				glog.Error("call Foo.Sum error:", err)
+				ulog.Error("call Foo.Sum error:", err)
 			}
-			glog.Info("reply:", reply)
+			ulog.Info("reply:", reply)
 		}(i)
 	}
 	wg.Wait()

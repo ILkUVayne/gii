@@ -2,10 +2,10 @@ package session
 
 import (
 	"fmt"
+	"github.com/ILkUVayne/utlis-go/v2/ulog"
 	"reflect"
 	"strings"
 
-	"gii/glog"
 	"gii/orm/clause"
 	"gii/orm/dialect"
 	"gii/orm/schema"
@@ -13,7 +13,7 @@ import (
 
 func (s *Session) RefTable() *schema.Schema {
 	if s.refTable == nil {
-		glog.Error("cannot get refTable")
+		ulog.Error("cannot get refTable")
 	}
 	return s.refTable
 }
@@ -28,7 +28,7 @@ func (s *Session) Model(m any) *Session {
 func (s *Session) CreateTable() {
 	table := s.RefTable()
 	if s.HasTable() {
-		glog.InfoF("table %s is exist", table.UnderscoreName)
+		ulog.InfoF("table %s is exist", table.UnderscoreName)
 		return
 	}
 
@@ -45,7 +45,7 @@ func (s *Session) CreateTable() {
 
 func (s *Session) DropTable() {
 	if !s.HasTable() {
-		glog.InfoF("table %s not exist", s.RefTable().UnderscoreName)
+		ulog.InfoF("table %s not exist", s.RefTable().UnderscoreName)
 		return
 	}
 	s.Raw(fmt.Sprintf("DROP TABLE %s", s.RefTable().UnderscoreName)).Exec()

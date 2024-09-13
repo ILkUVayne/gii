@@ -1,19 +1,21 @@
 package session
 
-import "gii/glog"
+import (
+	"github.com/ILkUVayne/utlis-go/v2/ulog"
+)
 
 func (s *Session) Begin() (err error) {
-	glog.Info("transaction begin")
+	ulog.Info("transaction begin")
 	s.tx, err = s.db.Begin()
 	return
 }
 
 func (s *Session) Commit() error {
-	glog.Info("transaction commit")
+	ulog.Info("transaction commit")
 	return s.tx.Commit()
 }
 
 func (s *Session) RollBack() error {
-	glog.Info("transaction rollback")
+	ulog.Info("transaction rollback")
 	return s.tx.Rollback()
 }

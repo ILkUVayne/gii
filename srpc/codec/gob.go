@@ -3,7 +3,7 @@ package codec
 import (
 	"bufio"
 	"encoding/gob"
-	"gii/glog"
+	"github.com/ILkUVayne/utlis-go/v2/ulog"
 	"io"
 )
 
@@ -42,7 +42,7 @@ func (g *GobCodec) Write(h *Header, body any) (err error) {
 	defer func() {
 		_ = g.buf.Flush()
 		if err != nil {
-			glog.Error(err)
+			ulog.Error(err)
 		}
 	}()
 	if err = g.enc.Encode(h); err != nil {

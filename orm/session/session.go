@@ -2,10 +2,10 @@ package session
 
 import (
 	"database/sql"
-	"gii/glog"
 	"gii/orm/clause"
 	"gii/orm/dialect"
 	"gii/orm/schema"
+	"github.com/ILkUVayne/utlis-go/v2/ulog"
 	"strings"
 	"sync"
 )
@@ -61,26 +61,26 @@ func (s *Session) Raw(sql string, sqlVars ...any) *Session {
 
 func (s *Session) Exec() sql.Result {
 	defer s.Clear()
-	glog.Info(s.sql.String(), s.sqlVars)
+	ulog.Info(s.sql.String(), s.sqlVars)
 	result, err := s.Db().Exec(s.sql.String(), s.sqlVars...)
 	if err != nil {
-		glog.Error(err)
+		ulog.Error(err)
 	}
 	return result
 }
 
 func (s *Session) QueryRow() *sql.Row {
 	defer s.Clear()
-	glog.Info(s.sql.String(), s.sqlVars)
+	ulog.Info(s.sql.String(), s.sqlVars)
 	return s.Db().QueryRow(s.sql.String(), s.sqlVars...)
 }
 
 func (s *Session) Query() *sql.Rows {
 	defer s.Clear()
-	glog.Info(s.sql.String(), s.sqlVars)
+	ulog.Info(s.sql.String(), s.sqlVars)
 	rows, err := s.Db().Query(s.sql.String(), s.sqlVars...)
 	if err != nil {
-		glog.Error(err)
+		ulog.Error(err)
 	}
 	return rows
 }
